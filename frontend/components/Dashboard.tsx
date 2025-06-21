@@ -42,9 +42,9 @@ const Dashboard: React.FC = () => {
         
         setStats({
           totalShots: shotsData.length,
-          avgDistance: validDistances.length > 0 ? Math.round(validDistances.reduce((a, b) => a + b, 0) / validDistances.length) : 0,
+          avgDistance: validDistances.length > 0 ? Math.round(validDistances.reduce((a: number, b: number) => a + b, 0) / validDistances.length) : 0,
           maxDistance: validDistances.length > 0 ? Math.max(...validDistances) : 0,
-          avgSpeed: validSpeeds.length > 0 ? Math.round(validSpeeds.reduce((a, b) => a + b, 0) / validSpeeds.length * 10) / 10 : 0
+          avgSpeed: validSpeeds.length > 0 ? Math.round(validSpeeds.reduce((a: number, b: number) => a + b, 0) / validSpeeds.length * 10) / 10 : 0
         })
       }
     } catch (error) {
