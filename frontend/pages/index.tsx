@@ -14,7 +14,21 @@ export default function Home() {
   const [activeTab, setActiveTab] = useState('upload')
 
   const handleGoogleLogin = () => {
+    console.log('Redirecting to:', `${API_URL}/auth/google`)
     window.location.href = `${API_URL}/auth/google`
+  }
+
+  const testBackend = async () => {
+    try {
+      const response = await fetch(`${API_URL}/health`)
+      if (response.ok) {
+        alert('✅ Backend is working! OAuth should work now.')
+      } else {
+        alert('❌ Backend responded but with error. Check Render logs.')
+      }
+    } catch (error) {
+      alert(`❌ Backend not accessible: ${API_URL}. Check if it's deployed.`)
+    }
   }
 
   if (!user) {
@@ -43,6 +57,17 @@ export default function Home() {
                 </div>
                 <h2 className="text-2xl font-bold text-gray-800 mb-2">Get Started</h2>
                 <p className="text-gray-600">Sign in with Google to start analyzing your golf shots</p>
+              </div>
+
+              {/* Debug Info */}
+              <div className="mb-4 p-3 bg-gray-100 rounded text-sm">
+                <strong>Debug:</strong> API URL = {API_URL}
+                <button 
+                  onClick={testBackend}
+                  className="ml-2 px-2 py-1 bg-blue-500 text-white rounded text-xs"
+                >
+                  Test Backend
+                </button>
               </div>
 
               <button
