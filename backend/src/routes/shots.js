@@ -1,0 +1,239 @@
+const express = require('express');
+const { body, validationResult } = require('express-validator');
+const { requireJWT } = require('../middleware/auth');
+const { analyzeShotImage, mockAnalyzeShotImage } = require('../services/openai');
+const { query } = require('../database/db');
+
+const router = express.Router();
+
+// Validation middleware for shot upload
+const validateShotUpload = [
+  body('imageBase64')
+    .notEmpty()
+    .withMessage('Image data is required')
+    .matches(/^data:image\/(jpeg|jpg|png|webp);base64,/)
+    .withMessage('Invalid image format. Must be JPEG, PNG, or WebP')
+];
+
+// POST /api/shots - Upload and analyze shot
+router.post('/', requireJWT, validateShotUpload, async (req, res) => {
+  try {
+    // Check validation errors
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        error: 'Validation failed',
+        details: errors.array()
+      });
+    }
+
+    const { imageBase64 } = req.body;
+    const userId = req.user.id;
+
+    // Analyze image with AI (use mock in development if no OpenAI key)
+    let shotData;
+    if (process.env.OPENAI_API_KEY && process.env.NODE_ENV !== 'development') {
+      shotData = await analyzeShotImage(imageBase64);
+    } else {
+      console.log('🧪 Using mock analysis (no OpenAI key or development mode)');
+      shotData = await mockAnalyzeShotImage(imageBase64);
+    }
+
+    // Save shot to database
+    const result = await query(`
+      INSERT INTO shots (user_id, speed, distance, spin, launch_angle, image_data)
+      VALUES ($1, $2, $3, $4, $5, $6)
+      RETURNING *
+    `, [
+      userId,
+      shotData.speed,
+      shotData.distance,
+      shotData.spin,
+      shotData.launchAngle,
+      imageBase64 // Store the image for sharing
+    ]);
+
+    const savedShot = result.rows[0];
+
+    // Return response with shot data and share URL
+    res.status(201).json({
+      shot: {
+        id: savedShot.id,
+        speed: savedShot.speed,
+        distance: savedShot.distance,
+        spin: savedShot.spin,
+        launchAngle: savedShot.launch_angle,
+        createdAt: savedShot.created_at
+      },
+      shareUrl: `/share/shot/${savedShot.id}`
+    });
+
+  } catch (error) {
+    console.error('Shot upload error:', error);
+    res.status(500).json({
+      error: 'Failed to process shot',
+      message: error.message
+    });
+  }
+});
+
+// GET /api/shots/me - Get user's shots
+router.get('/me', requireJWT, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { limit = 20, offset = 0 } = req.query;
+
+    const result = await query(`
+      SELECT id, speed, distance, spin, launch_angle, created_at, is_public
+      FROM shots 
+      WHERE user_id = $1 
+      ORDER BY created_at DESC 
+      LIMIT $2 OFFSET $3
+    `, [userId, parseInt(limit), parseInt(offset)]);
+
+    const shots = result.rows.map(shot => ({
+      id: shot.id,
+      speed: shot.speed,
+      distance: shot.distance,
+      spin: shot.spin,
+      launchAngle: shot.launch_angle,
+      createdAt: shot.created_at,
+      isPublic: shot.is_public
+    }));
+
+    res.json({ shots });
+
+  } catch (error) {
+    console.error('Get user shots error:', error);
+    res.status(500).json({
+      error: 'Failed to fetch shots',
+      message: error.message
+    });
+  }
+});
+
+// GET /api/shots/leaderboard - Get leaderboard
+router.get('/leaderboard', async (req, res) => {
+  try {
+    const { period = 'all', metric = 'distance', limit = 10 } = req.query;
+    
+    let timeFilter = '';
+    if (period === 'day') {
+      timeFilter = "AND created_at >= NOW() - INTERVAL '1 day'";
+    } else if (period === 'week') {
+      timeFilter = "AND created_at >= NOW() - INTERVAL '1 week'";
+    }
+
+    // Validate metric
+    const validMetrics = ['distance', 'speed', 'spin'];
+    const orderMetric = validMetrics.includes(metric) ? metric : 'distance';
+
+    const result = await query(`
+      SELECT 
+        s.id,
+        s.${orderMetric} as value,
+        s.speed,
+        s.distance,
+        s.spin,
+        s.launch_angle,
+        s.created_at,
+        u.name as user_name,
+        u.profile_picture as user_avatar
+      FROM shots s
+      JOIN users u ON s.user_id = u.id
+      WHERE s.${orderMetric} IS NOT NULL ${timeFilter}
+      ORDER BY s.${orderMetric} DESC
+      LIMIT $1
+    `, [parseInt(limit)]);
+
+    const leaderboard = result.rows.map(shot => ({
+      id: shot.id,
+      value: shot.value,
+      speed: shot.speed,
+      distance: shot.distance,
+      spin: shot.spin,
+      launchAngle: shot.launch_angle,
+      createdAt: shot.created_at,
+      user: {
+        name: shot.user_name,
+        avatar: shot.user_avatar
+      }
+    }));
+
+    res.json({ 
+      leaderboard,
+      metric: orderMetric,
+      period 
+    });
+
+  } catch (error) {
+    console.error('Leaderboard error:', error);
+    res.status(500).json({
+      error: 'Failed to fetch leaderboard',
+      message: error.message
+    });
+  }
+});
+
+// PATCH /api/shots/:id/visibility - Toggle shot visibility
+router.patch('/:id/visibility', requireJWT, async (req, res) => {
+  try {
+    const shotId = req.params.id;
+    const userId = req.user.id;
+    const { isPublic } = req.body;
+
+    // Verify shot ownership
+    const shot = await query(
+      'SELECT * FROM shots WHERE id = $1 AND user_id = $2',
+      [shotId, userId]
+    );
+
+    if (shot.rows.length === 0) {
+      return res.status(404).json({ error: 'Shot not found' });
+    }
+
+    // Update visibility
+    await query(
+      'UPDATE shots SET is_public = $1 WHERE id = $2',
+      [isPublic, shotId]
+    );
+
+    res.json({ message: 'Shot visibility updated' });
+
+  } catch (error) {
+    console.error('Update shot visibility error:', error);
+    res.status(500).json({
+      error: 'Failed to update shot visibility',
+      message: error.message
+    });
+  }
+});
+
+// DELETE /api/shots/:id - Delete shot
+router.delete('/:id', requireJWT, async (req, res) => {
+  try {
+    const shotId = req.params.id;
+    const userId = req.user.id;
+
+    // Verify shot ownership and delete
+    const result = await query(
+      'DELETE FROM shots WHERE id = $1 AND user_id = $2 RETURNING id',
+      [shotId, userId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Shot not found' });
+    }
+
+    res.json({ message: 'Shot deleted successfully' });
+
+  } catch (error) {
+    console.error('Delete shot error:', error);
+    res.status(500).json({
+      error: 'Failed to delete shot',
+      message: error.message
+    });
+  }
+});
+
+module.exports = router; 
