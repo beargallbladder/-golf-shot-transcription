@@ -13,14 +13,27 @@ router.get('/google',
 
 // Google OAuth callback
 router.get('/google/callback',
-  passport.authenticate('google', { failureRedirect: '/login' }),
-  (req, res) => {
-    // Generate JWT token for the authenticated user
-    const token = generateJWT(req.user.id);
-    
-    // Redirect to frontend with token
-    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
-    res.redirect(`${frontendUrl}/auth/callback?token=${token}`);
+  (req, res, next) => {
+    passport.authenticate('google', { 
+      failureRedirect: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/?error=oauth_failed` 
+    })(req, res, (err) => {
+      if (err) {
+        console.error('OAuth error:', err);
+        return res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:3000'}/?error=oauth_error`);
+      }
+      
+      try {
+        // Generate JWT token for the authenticated user
+        const token = generateJWT(req.user.id);
+        
+        // Redirect to frontend with token
+        const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+        res.redirect(`${frontendUrl}/auth/callback?token=${token}`);
+      } catch (error) {
+        console.error('Token generation error:', error);
+        res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:3000'}/?error=token_error`);
+      }
+    });
   }
 );
 

@@ -61,6 +61,23 @@ app.get('/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
+// Favicon route to prevent 404 errors
+app.get('/favicon.ico', (req, res) => {
+  res.status(204).end();
+});
+
+// Debug route to check environment variables (remove in production)
+app.get('/debug/env', (req, res) => {
+  res.json({
+    hasGoogleClientId: !!process.env.GOOGLE_CLIENT_ID,
+    hasGoogleClientSecret: !!process.env.GOOGLE_CLIENT_SECRET,
+    hasJwtSecret: !!process.env.JWT_SECRET,
+    hasSessionSecret: !!process.env.SESSION_SECRET,
+    frontendUrl: process.env.FRONTEND_URL,
+    nodeEnv: process.env.NODE_ENV
+  });
+});
+
 // Routes
 app.use('/auth', authRoutes);
 app.use('/api/shots', shotRoutes);
