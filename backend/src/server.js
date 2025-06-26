@@ -31,6 +31,8 @@ app.use(cors({
   origin: [
     'http://localhost:3000',
     'https://golf-shot-transcription-frontend.vercel.app',
+    'https://www.beatmybag.com',
+    'https://beatmybag.com',
     process.env.FRONTEND_URL
   ].filter(Boolean),
   credentials: true
