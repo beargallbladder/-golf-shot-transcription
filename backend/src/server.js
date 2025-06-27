@@ -15,8 +15,8 @@ const shareRoutes = require('./routes/share');
 require('./config/passport');
 
 // Run database migration on startup
-const { createTables } = require('./database/migrate');
-createTables().catch(console.error);
+const { createTablesNoExit } = require('./database/migrate');
+createTablesNoExit().catch(console.error);
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -50,9 +50,10 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: {
-    secure: process.env.NODE_ENV === 'production',
+    secure: false, // Fix for invalid cert issues
     httpOnly: true,
-    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    maxAge: 24 * 60 * 60 * 1000, // 24 hours
+    sameSite: 'lax'
   }
 }));
 
