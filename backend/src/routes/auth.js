@@ -14,24 +14,37 @@ router.get('/google',
 // Google OAuth callback
 router.get('/google/callback',
   (req, res, next) => {
+    console.log('🔄 OAuth callback hit, attempting authentication...');
+    
     passport.authenticate('google', { 
       failureRedirect: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/?error=oauth_failed` 
     })(req, res, (err) => {
       if (err) {
-        console.error('OAuth error:', err);
-        return res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:3000'}/?error=oauth_error`);
+        console.error('❌ OAuth authentication error:', err);
+        return res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:3000'}/?error=oauth_error&details=${encodeURIComponent(err.message)}`);
+      }
+      
+      if (!req.user) {
+        console.error('❌ No user object after authentication');
+        return res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:3000'}/?error=no_user`);
       }
       
       try {
+        console.log('✅ User authenticated:', req.user.email);
+        
         // Generate JWT token for the authenticated user
         const token = generateJWT(req.user.id);
+        console.log('✅ JWT token generated for user ID:', req.user.id);
         
         // Redirect to frontend with token
         const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
-        res.redirect(`${frontendUrl}/auth/callback?token=${token}`);
+        const redirectUrl = `${frontendUrl}/auth/callback?token=${token}`;
+        console.log('🔄 Redirecting to:', redirectUrl);
+        
+        res.redirect(redirectUrl);
       } catch (error) {
-        console.error('Token generation error:', error);
-        res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:3000'}/?error=token_error`);
+        console.error('❌ Token generation error:', error);
+        res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:3000'}/?error=token_error&details=${encodeURIComponent(error.message)}`);
       }
     });
   }

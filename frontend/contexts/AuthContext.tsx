@@ -51,18 +51,22 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const login = async (newToken: string) => {
     try {
+      console.log('🔄 Logging in with token...')
       setToken(newToken)
       Cookies.set('auth_token', newToken, { expires: 7 }) // 7 days
       axios.defaults.headers.common['Authorization'] = `Bearer ${newToken}`
       
       // Fetch user info
+      console.log('🔄 Fetching user info from:', `${API_URL}/auth/me`)
       const response = await axios.get(`${API_URL}/auth/me`)
+      console.log('✅ User info received:', response.data.user)
       setUser(response.data.user)
       
       toast.success('Successfully logged in!')
-    } catch (error) {
-      console.error('Login error:', error)
-      toast.error('Failed to fetch user information')
+    } catch (error: any) {
+      console.error('❌ Login error:', error)
+      console.error('Error response:', error.response?.data)
+      toast.error(`Failed to fetch user information: ${error.response?.data?.error || error.message}`)
       logout()
     }
   }
