@@ -3,7 +3,7 @@ const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const { query } = require('../database/db');
 
 passport.use(new GoogleStrategy({
-  clientID: process.env.GOOGLE_CLIENT_ID,
+  clientID: '30109835375-vqi79va1m9gdug0c9e9q9j4cvm5e93d1.apps.googleusercontent.com',
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
   callbackURL: process.env.GOOGLE_CALLBACK_URL || '/auth/google/callback'
 }, async (accessToken, refreshToken, profile, done) => {
