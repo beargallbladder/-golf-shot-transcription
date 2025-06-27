@@ -14,6 +14,10 @@ const shareRoutes = require('./routes/share');
 // Import passport configuration
 require('./config/passport');
 
+// Run database migration on startup
+const { createTables } = require('./database/migrate');
+createTables().catch(console.error);
+
 const app = express();
 const PORT = process.env.PORT || 3001;
 
