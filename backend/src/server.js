@@ -79,7 +79,10 @@ app.get('/debug/env', (req, res) => {
     hasJwtSecret: !!process.env.JWT_SECRET,
     hasSessionSecret: !!process.env.SESSION_SECRET,
     frontendUrl: process.env.FRONTEND_URL,
-    nodeEnv: process.env.NODE_ENV
+    nodeEnv: process.env.NODE_ENV,
+    // Show actual client ID parts for debugging
+    clientIdSuffix: process.env.GOOGLE_CLIENT_ID ? process.env.GOOGLE_CLIENT_ID.slice(-15) : 'NOT_SET',
+    clientIdPrefix: process.env.GOOGLE_CLIENT_ID ? process.env.GOOGLE_CLIENT_ID.slice(0, 15) : 'NOT_SET'
   });
 });
 
