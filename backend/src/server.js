@@ -14,9 +14,7 @@ const shareRoutes = require('./routes/share');
 // Import passport configuration
 require('./config/passport');
 
-// Run database migration on startup
-const { createTablesNoExit } = require('./database/migrate');
-createTablesNoExit().catch(console.error);
+// Database migration will be run in startServer() function
 
 const app = express();
 const PORT = process.env.PORT || 3001;
