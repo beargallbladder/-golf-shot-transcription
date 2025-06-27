@@ -129,11 +129,20 @@ const startServer = async () => {
     await createTables();
     console.log('✅ Database migration completed');
     
-    app.listen(PORT, () => {
-          console.log(`🚀 Server running on port ${PORT}`);
-    console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
-    console.log(`🔑 Using Google Client ID ending with: ${process.env.GOOGLE_CLIENT_ID ? process.env.GOOGLE_CLIENT_ID.slice(-10) : 'NOT_SET'}`);
+    // Ensure we bind to 0.0.0.0 for Render
+    const server = app.listen(PORT, '0.0.0.0', () => {
+      console.log(`🚀 Server running on port ${PORT}`);
+      console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
+      console.log(`🔑 Using Google Client ID ending with: ${process.env.GOOGLE_CLIENT_ID ? process.env.GOOGLE_CLIENT_ID.slice(-10) : 'NOT_SET'}`);
+      console.log(`📡 Server accessible at: http://0.0.0.0:${PORT}`);
     });
+    
+    // Handle server errors
+    server.on('error', (err) => {
+      console.error('❌ Server error:', err);
+      process.exit(1);
+    });
+    
   } catch (error) {
     console.error('❌ Failed to start server:', error);
     process.exit(1);
