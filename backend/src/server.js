@@ -130,8 +130,9 @@ const startServer = async () => {
     console.log('✅ Database migration completed');
     
     app.listen(PORT, () => {
-      console.log(`🚀 Server running on port ${PORT}`);
-      console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
+          console.log(`🚀 Server running on port ${PORT}`);
+    console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`🔑 Using Google Client ID ending with: ${process.env.GOOGLE_CLIENT_ID ? process.env.GOOGLE_CLIENT_ID.slice(-10) : 'NOT_SET'}`);
     });
   } catch (error) {
     console.error('❌ Failed to start server:', error);
