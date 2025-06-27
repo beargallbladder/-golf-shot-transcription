@@ -6,6 +6,9 @@ const HARDCODED_CLIENT_ID = '30109835375-vqi79va1m9gdug0c9e9q9j4cvm5e93d1.apps.g
 console.log('🔥 PASSPORT CONFIG: Using hardcoded client ID:', HARDCODED_CLIENT_ID);
 console.log('🔥 PASSPORT CONFIG: Environment client ID:', process.env.GOOGLE_CLIENT_ID);
 
+// FORCE the correct client ID by overriding environment
+process.env.GOOGLE_CLIENT_ID = HARDCODED_CLIENT_ID;
+
 passport.use(new GoogleStrategy({
   clientID: HARDCODED_CLIENT_ID,
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
