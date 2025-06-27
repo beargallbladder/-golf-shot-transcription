@@ -2,8 +2,12 @@ const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const { query } = require('../database/db');
 
+const HARDCODED_CLIENT_ID = '30109835375-vqi79va1m9gdug0c9e9q9j4cvm5e93d1.apps.googleusercontent.com';
+console.log('🔥 PASSPORT CONFIG: Using hardcoded client ID:', HARDCODED_CLIENT_ID);
+console.log('🔥 PASSPORT CONFIG: Environment client ID:', process.env.GOOGLE_CLIENT_ID);
+
 passport.use(new GoogleStrategy({
-  clientID: '30109835375-vqi79va1m9gdug0c9e9q9j4cvm5e93d1.apps.googleusercontent.com',
+  clientID: HARDCODED_CLIENT_ID,
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
   callbackURL: process.env.GOOGLE_CALLBACK_URL || '/auth/google/callback'
 }, async (accessToken, refreshToken, profile, done) => {
