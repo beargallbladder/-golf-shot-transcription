@@ -80,7 +80,9 @@ app.get('/debug/env', (req, res) => {
     nodeEnv: process.env.NODE_ENV,
     // Show actual client ID parts for debugging
     clientIdSuffix: process.env.GOOGLE_CLIENT_ID ? process.env.GOOGLE_CLIENT_ID.slice(-15) : 'NOT_SET',
-    clientIdPrefix: process.env.GOOGLE_CLIENT_ID ? process.env.GOOGLE_CLIENT_ID.slice(0, 15) : 'NOT_SET'
+    clientIdPrefix: process.env.GOOGLE_CLIENT_ID ? process.env.GOOGLE_CLIENT_ID.slice(0, 15) : 'NOT_SET',
+    // Show the EXACT client ID being used (temporarily for debugging)
+    actualClientId: '30109835375-vqi79va1m9gdug0c9e9q9j4cvm5e93d1.apps.googleusercontent.com'
   });
 });
 
