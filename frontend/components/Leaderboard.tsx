@@ -250,51 +250,30 @@ const Leaderboard: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Share Button */}
+                {/* Share Buttons */}
                 <div className="flex-shrink-0">
-                  <div className="flex items-center space-x-2">
-                    {/* Quick Share Button */}
+                  <div className="flex items-center space-x-1">
+                    <button
+                      onClick={() => shareToTwitter(entry)}
+                      className="p-2 text-blue-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                      title="Share on Twitter"
+                    >
+                      🐦
+                    </button>
+                    <button
+                      onClick={() => shareToFacebook(entry)}
+                      className="p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-colors"
+                      title="Share on Facebook"
+                    >
+                      📘
+                    </button>
                     <button
                       onClick={() => shareShot(entry)}
                       className="p-2 text-gray-400 hover:text-golf-green hover:bg-gray-100 rounded-lg transition-colors"
-                      title="Share this shot"
+                      title="Copy link"
                     >
-                      <ShareIcon className="w-5 h-5" />
+                      📋
                     </button>
-                    
-                    {/* Social Share Dropdown */}
-                    <div className="relative group">
-                      <button className="p-2 text-gray-400 hover:text-golf-green hover:bg-gray-100 rounded-lg transition-colors">
-                        <span className="text-sm">⚡</span>
-                      </button>
-                      
-                      {/* Dropdown Menu */}
-                      <div className="absolute right-0 top-full mt-1 w-40 bg-white rounded-lg shadow-lg border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10">
-                        <div className="py-1">
-                          <button
-                            onClick={() => shareToTwitter(entry)}
-                            className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center space-x-2"
-                          >
-                            <span>🐦</span>
-                            <span>Twitter</span>
-                          </button>
-                          <button
-                            onClick={() => shareToFacebook(entry)}
-                            className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center space-x-2"
-                          >
-                            <span>📘</span>
-                            <span>Facebook</span>
-                          </button>
-                          <button
-                            onClick={() => shareShot(entry)}
-                            className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center space-x-2"
-                          >
-                            <span>📋</span>
-                            <span>Copy Link</span>
-                          </button>
-                        </div>
-                      </div>
-                    </div>
                   </div>
                 </div>
               </div>

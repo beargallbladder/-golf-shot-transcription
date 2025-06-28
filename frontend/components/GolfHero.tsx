@@ -2,13 +2,13 @@ import React, { useState, useEffect } from 'react'
 import { CameraIcon, ChartBarIcon, TrophyIcon } from '@heroicons/react/24/outline'
 
 const golfImages = [
-  '/images/golf/course-water.jpg', // The water reflection image
-  '/images/golf/course-bridge.jpg', // The wooden bridge image  
-  '/images/golf/course-ocean.jpg', // The ocean view image
-  '/images/golf/course-fairway.jpg', // The fairway image
-  '/images/golf/course-desert.jpg', // The desert course image
-  '/images/golf/course-green.jpg', // The putting green image
-  '/images/golf/course-sunset.jpg', // The sunset image
+  '/images/golf/course-water.jpg', // Golf course with water reflection
+  '/images/golf/course-bridge.jpg', // Golf course with wooden bridge  
+  '/images/golf/course-ocean.jpg', // Ocean golf course view
+  '/images/golf/course-fairway.jpg', // Beautiful golf fairway
+  '/images/golf/course-desert.jpg', // Desert golf course with mountains
+  '/images/golf/course-green.jpg', // Pristine putting green
+  '/images/golf/course-sunset.jpg', // Sunset golf course magic
 ]
 
 interface GolfHeroProps {
