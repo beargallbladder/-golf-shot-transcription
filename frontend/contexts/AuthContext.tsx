@@ -10,6 +10,15 @@ interface User {
   name: string
   email: string
   profilePicture: string
+  accountType?: string
+  isAdmin?: boolean
+  retailerInfo?: {
+    businessName: string
+    location: string
+    subscriptionStatus: string
+    subscriptionPlan: string
+    dailyLimit: number
+  } | null
 }
 
 interface AuthContextType {

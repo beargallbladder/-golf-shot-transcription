@@ -1,7 +1,7 @@
 const express = require('express');
 const { body, validationResult } = require('express-validator');
 const { requireJWT } = require('../middleware/auth');
-const { analyzeShotImage } = require('../services/openai');
+const { analyzeShotImage, analyzeRetailerShotImage } = require('../services/openai');
 const { query } = require('../database/db');
 const { checkAndUpdatePersonalBest, getUserBag, getBagStats } = require('../services/personalBests');
 
@@ -28,35 +28,53 @@ router.post('/', requireJWT, validateShotUpload, async (req, res) => {
       });
     }
 
-    const { imageBase64 } = req.body;
+    const { imageBase64, fittingSessionId, customerEmail, retailerNotes } = req.body;
     const userId = req.user.id;
 
-    // Skip daily limit for admin users
-    if (req.user.is_admin) {
-      console.log('🔑 Admin user detected - skipping daily limit');
-    } else {
-      // Check daily shot limit (10 shots per day)
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-
-    const dailyCount = await query(`
-      SELECT COUNT(*) as count
-      FROM shots 
-      WHERE user_id = $1 
-      AND created_at >= $2 
-      AND created_at < $3
-    `, [userId, today.toISOString(), tomorrow.toISOString()]);
-
-    const shotsToday = parseInt(dailyCount.rows[0].count);
+    // Get user account type for enhanced analysis
+    const userResult = await query('SELECT * FROM users WHERE id = $1', [userId]);
+    const user = userResult.rows[0];
     
-      if (shotsToday >= 10) {
+    // Retailer whitelist - ONLY these emails can access retailer features
+    const RETAILER_WHITELIST = [
+      'samkim@samkim.com',
+      // FIRST CUSTOMER - Fairway Golf USA (San Diego)
+      'info@fairwaygolfusa.com',
+      'sales@fairwaygolfusa.com',
+      'custom@fairwaygolfusa.com',
+      // Add more beta retailers here when ready to expand
+    ];
+    
+    const isRetailerWhitelisted = RETAILER_WHITELIST.includes(user.email.toLowerCase());
+    const isRetailer = user.account_type === 'retailer' && isRetailerWhitelisted;
+    const userDailyLimit = user.daily_shot_limit || 10;
+
+    // Skip daily limit for admin users and unlimited retailer plans
+    if (req.user.is_admin || user.subscription_plan === 'unlimited') {
+      console.log('🔑 Unlimited access detected - skipping daily limit');
+    } else {
+      // Check daily shot limit
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const tomorrow = new Date(today);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+
+      const dailyCount = await query(`
+        SELECT COUNT(*) as count
+        FROM shots 
+        WHERE user_id = $1 
+        AND created_at >= $2 
+        AND created_at < $3
+      `, [userId, today.toISOString(), tomorrow.toISOString()]);
+
+      const shotsToday = parseInt(dailyCount.rows[0].count);
+      
+      if (shotsToday >= userDailyLimit) {
         return res.status(429).json({
           error: 'Daily limit reached',
-          message: 'You have reached your daily limit of 10 shot analyses. Try again tomorrow or upgrade to premium for unlimited shots.',
+          message: `You have reached your daily limit of ${userDailyLimit} shot analyses. ${isRetailer ? 'Upgrade your plan for more shots.' : 'Try again tomorrow or upgrade to premium for unlimited shots.'}`,
           shotsUsed: shotsToday,
-          dailyLimit: 10,
+          dailyLimit: userDailyLimit,
           resetTime: tomorrow.toISOString()
         });
       }
@@ -70,22 +88,59 @@ router.post('/', requireJWT, validateShotUpload, async (req, res) => {
       });
     }
 
-    const shotData = await analyzeShotImage(imageBase64);
+    // Use enhanced analysis for retailer accounts
+    const shotData = isRetailer 
+      ? await analyzeRetailerShotImage(imageBase64)
+      : await analyzeShotImage(imageBase64);
 
-    // Save shot to database
-    const result = await query(`
-      INSERT INTO shots (user_id, speed, distance, spin, launch_angle, club, image_data)
-      VALUES ($1, $2, $3, $4, $5, $6, $7)
-      RETURNING *
-    `, [
-      userId,
-      shotData.speed,
-      shotData.distance,
-      shotData.spin,
-      shotData.launchAngle,
-      shotData.club,
-      imageBase64 // Store the image for sharing
-    ]);
+    // Save shot to database with enhanced data for retailers
+    let result;
+    if (isRetailer) {
+      result = await query(`
+        INSERT INTO shots (
+          user_id, speed, distance, spin, launch_angle, club, image_data,
+          club_brand, club_model, shaft_type, shaft_flex, grip_type,
+          loft_angle, lie_angle, retailer_notes, fitting_session_id,
+          customer_email, is_fitting_data
+        )
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)
+        RETURNING *
+      `, [
+        userId,
+        shotData.speed,
+        shotData.distance,
+        shotData.spin,
+        shotData.launchAngle,
+        shotData.club,
+        imageBase64,
+        shotData.clubBrand,
+        shotData.clubModel,
+        shotData.shaftType,
+        shotData.shaftFlex,
+        shotData.gripType,
+        shotData.loftAngle,
+        shotData.lieAngle,
+        retailerNotes,
+        fittingSessionId,
+        customerEmail,
+        !!customerEmail // Mark as fitting data if customer email provided
+      ]);
+    } else {
+      // Standard consumer shot save
+      result = await query(`
+        INSERT INTO shots (user_id, speed, distance, spin, launch_angle, club, image_data)
+        VALUES ($1, $2, $3, $4, $5, $6, $7)
+        RETURNING *
+      `, [
+        userId,
+        shotData.speed,
+        shotData.distance,
+        shotData.spin,
+        shotData.launchAngle,
+        shotData.club,
+        imageBase64
+      ]);
+    }
 
     const savedShot = result.rows[0];
 
@@ -100,18 +155,39 @@ router.post('/', requireJWT, validateShotUpload, async (req, res) => {
     });
 
     // Return response with shot data and share URL
+    const responseShot = {
+      id: savedShot.id,
+      speed: savedShot.speed ? parseFloat(savedShot.speed) : null,
+      distance: savedShot.distance ? parseInt(savedShot.distance) : null,
+      spin: savedShot.spin ? parseInt(savedShot.spin) : null,
+      launchAngle: savedShot.launch_angle ? parseFloat(savedShot.launch_angle) : null,
+      club: savedShot.club,
+      createdAt: savedShot.created_at
+    };
+
+    // Add enhanced data for retailer responses
+    if (isRetailer) {
+      responseShot.enhancedData = {
+        clubBrand: savedShot.club_brand,
+        clubModel: savedShot.club_model,
+        shaftType: savedShot.shaft_type,
+        shaftFlex: savedShot.shaft_flex,
+        gripType: savedShot.grip_type,
+        loftAngle: savedShot.loft_angle ? parseFloat(savedShot.loft_angle) : null,
+        lieAngle: savedShot.lie_angle ? parseFloat(savedShot.lie_angle) : null,
+        fittingNotes: shotData.fittingNotes,
+        recommendations: shotData.recommendations,
+        fittingSessionId: savedShot.fitting_session_id,
+        customerEmail: savedShot.customer_email,
+        isFittingData: savedShot.is_fitting_data
+      };
+    }
+
     res.status(201).json({
-      shot: {
-        id: savedShot.id,
-        speed: savedShot.speed ? parseFloat(savedShot.speed) : null,
-        distance: savedShot.distance ? parseInt(savedShot.distance) : null,
-        spin: savedShot.spin ? parseInt(savedShot.spin) : null,
-        launchAngle: savedShot.launch_angle ? parseFloat(savedShot.launch_angle) : null,
-        club: savedShot.club,
-        createdAt: savedShot.created_at
-      },
+      shot: responseShot,
       shareUrl: `/share/shot/${savedShot.id}`,
-      personalBest: personalBestResult
+      personalBest: personalBestResult,
+      accountType: user.account_type
     });
 
   } catch (error) {

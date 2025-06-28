@@ -7,6 +7,7 @@ import ShotUpload from '../components/ShotUpload'
 import Dashboard from '../components/Dashboard'
 import Leaderboard from '../components/Leaderboard'
 import MyBag from '../components/MyBag'
+import RetailerUpgrade from '../components/RetailerUpgrade'
 import GolfHero from '../components/GolfHero'
 import BeatMyBagLogo from '../components/BeatMyBagLogo'
 
@@ -149,7 +150,7 @@ export default function Home() {
         {/* BADASS GOLF NAVIGATION */}
         <nav className="bg-gradient-to-r from-green-800 to-green-600 shadow-2xl">
           <div className="container mx-auto px-4 py-4">
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
               {/* UPLOAD SHOT - MAIN ACTION */}
               <button
                 onClick={() => setActiveTab('upload')}
@@ -203,14 +204,26 @@ export default function Home() {
                 <div className="text-sm">LEADERBOARD</div>
               </button>
 
-              {/* EMERGENCY LOGOUT BUTTON */}
-              <button
-                onClick={logout}
-                className="p-4 rounded-lg text-center transition-all transform hover:scale-105 font-bold bg-red-600 hover:bg-red-700 text-white border border-red-500"
-              >
-                <div className="text-2xl mb-1">🚪</div>
-                <div className="text-sm">LOGOUT</div>
-              </button>
+              {/* RETAILER UPGRADE - BUSINESS FEATURES */}
+              {user && user.accountType !== 'retailer' && (
+                user.email === 'samkim@samkim.com' || 
+                user.email === 'info@fairwaygolfusa.com' ||
+                user.email === 'sales@fairwaygolfusa.com' ||
+                user.email === 'custom@fairwaygolfusa.com'
+              ) && (
+                <button
+                  onClick={() => setActiveTab('retailer')}
+                  className={`p-4 rounded-lg text-center transition-all transform hover:scale-105 font-bold relative ${
+                    activeTab === 'retailer'
+                      ? 'bg-white text-green-800 shadow-xl border-2 border-yellow-400'
+                      : 'bg-gradient-to-br from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white border border-purple-400'
+                  }`}
+                >
+                  <div className="text-2xl mb-1">🏪</div>
+                  <div className="text-sm">RETAILER</div>
+                  <div className="absolute -top-1 -right-1 bg-yellow-500 text-black text-xs px-1 rounded-full">PRO</div>
+                </button>
+              )}
             </div>
           </div>
         </nav>
@@ -224,6 +237,7 @@ export default function Home() {
                 {activeTab === 'mybag' && '🎒'}
                 {activeTab === 'dashboard' && '📈'}
                 {activeTab === 'leaderboard' && '🏆'}
+                {activeTab === 'retailer' && '🏪'}
               </div>
               <div>
                 <h1 className="text-xl font-bold tracking-wide">
@@ -231,12 +245,14 @@ export default function Home() {
                   {activeTab === 'mybag' && 'BEAT YOUR BAG'}
                   {activeTab === 'dashboard' && 'YOUR GOLF HISTORY'}
                   {activeTab === 'leaderboard' && 'WHO\'S THE BEST?'}
+                  {activeTab === 'retailer' && 'UPGRADE TO RETAILER'}
                 </h1>
                 <p className="text-sm opacity-90 font-medium">
                   {activeTab === 'upload' && 'Upload simulator shots • Get instant AI analysis • Track every yard'}
                   {activeTab === 'mybag' && 'Personal bests with every club • Beat your records • Build your bag'}
                   {activeTab === 'dashboard' && 'All your shots • Performance stats • Share your best drives'}
                   {activeTab === 'leaderboard' && 'Global rankings • Compete with golfers worldwide • Claim the top spot'}
+                  {activeTab === 'retailer' && 'Enhanced AI transcription • Customer lead capture • Professional fitting tools'}
                 </p>
               </div>
             </div>
@@ -249,6 +265,7 @@ export default function Home() {
           {activeTab === 'dashboard' && <Dashboard />}
           {activeTab === 'leaderboard' && <Leaderboard />}
           {activeTab === 'mybag' && <MyBag />}
+          {activeTab === 'retailer' && <RetailerUpgrade user={user} onUpgradeComplete={() => setActiveTab('upload')} />}
         </main>
       </div>
     </>
