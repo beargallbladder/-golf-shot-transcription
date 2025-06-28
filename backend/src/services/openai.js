@@ -88,23 +88,6 @@ const analyzeShotImage = async (imageBase64) => {
   }
 };
 
-// Mock function for development/testing
-const mockAnalyzeShotImage = async (imageBase64) => {
-  console.log('🧪 Using mock shot analysis...');
-  
-  // Simulate API delay
-  await new Promise(resolve => setTimeout(resolve, 1000));
-  
-  // Return mock data
-  return {
-    speed: 142.5 + (Math.random() * 20 - 10), // 132.5 - 152.5
-    distance: 275 + Math.floor(Math.random() * 50 - 25), // 250 - 300
-    spin: 2400 + Math.floor(Math.random() * 800 - 400), // 2000 - 2800
-    launchAngle: 12.0 + (Math.random() * 6 - 3) // 9.0 - 15.0
-  };
-};
-
 module.exports = {
-  analyzeShotImage,
-  mockAnalyzeShotImage
+  analyzeShotImage
 }; 

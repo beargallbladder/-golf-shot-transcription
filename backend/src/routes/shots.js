@@ -1,7 +1,7 @@
 const express = require('express');
 const { body, validationResult } = require('express-validator');
 const { requireJWT } = require('../middleware/auth');
-const { analyzeShotImage, mockAnalyzeShotImage } = require('../services/openai');
+const { analyzeShotImage } = require('../services/openai');
 const { query } = require('../database/db');
 
 const router = express.Router();
@@ -30,14 +30,15 @@ router.post('/', requireJWT, validateShotUpload, async (req, res) => {
     const { imageBase64 } = req.body;
     const userId = req.user.id;
 
-    // Analyze image with AI (use mock in development if no OpenAI key)
-    let shotData;
-    if (process.env.OPENAI_API_KEY && process.env.NODE_ENV !== 'development') {
-      shotData = await analyzeShotImage(imageBase64);
-    } else {
-      console.log('🧪 Using mock analysis (no OpenAI key or development mode)');
-      shotData = await mockAnalyzeShotImage(imageBase64);
+    // Analyze image with AI - NO FAKE DATA EVER
+    if (!process.env.OPENAI_API_KEY) {
+      return res.status(500).json({
+        error: 'OpenAI API key not configured',
+        message: 'Image analysis is not available without proper API configuration'
+      });
     }
+
+    const shotData = await analyzeShotImage(imageBase64);
 
     // Save shot to database
     const result = await query(`
