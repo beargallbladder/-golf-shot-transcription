@@ -39,17 +39,36 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [token, setToken] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
 
-  // Configure axios defaults
+  // Configure axios defaults and check for existing session
   useEffect(() => {
-    const storedToken = Cookies.get('auth_token')
-    if (storedToken) {
-      setToken(storedToken)
-      axios.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`
+    const initializeAuth = async () => {
+      const storedToken = Cookies.get('auth_token')
+      if (storedToken) {
+        setToken(storedToken)
+        axios.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`
+        
+        try {
+          // Validate token and get user info
+          console.log('🔄 Validating existing session...')
+          const response = await axios.get(`${API_URL}/auth/me`)
+          console.log('✅ Session valid, user:', response.data.user.name)
+          setUser(response.data.user)
+          // Don't show success toast for existing sessions
+        } catch (error) {
+          console.log('❌ Token invalid, clearing session')
+          // Token is invalid, clear it
+          Cookies.remove('auth_token')
+          setToken(null)
+          delete axios.defaults.headers.common['Authorization']
+        }
+      }
+      setLoading(false)
     }
-    setLoading(false)
+
+    initializeAuth()
   }, [])
 
-  const login = async (newToken: string) => {
+  const login = async (newToken: string, showWelcome: boolean = true) => {
     try {
       console.log('🔄 Logging in with token...')
       setToken(newToken)
@@ -62,7 +81,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       console.log('✅ User info received:', response.data.user)
       setUser(response.data.user)
       
-      toast.success('Successfully logged in!')
+      // Only show welcome message for new logins, not session restoration
+      if (showWelcome) {
+        toast.success(`Welcome back, ${response.data.user.name}! 🏌️‍♂️`, {
+          duration: 3000,
+          icon: '👋',
+        })
+      }
     } catch (error: any) {
       console.error('❌ Login error:', error)
       console.error('Error response:', error.response?.data)
@@ -72,11 +97,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }
 
   const logout = () => {
+    const userName = user?.name || 'golfer'
     setUser(null)
     setToken(null)
     Cookies.remove('auth_token')
     delete axios.defaults.headers.common['Authorization']
-    toast.success('Logged out successfully')
+    toast.success(`See you on the course, ${userName}! 👋`, {
+      duration: 2000,
+      icon: '🏌️‍♂️',
+    })
   }
 
   const value: AuthContextType = {

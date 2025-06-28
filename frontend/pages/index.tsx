@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Head from 'next/head'
 import Image from 'next/image'
 import { useAuth } from '../contexts/AuthContext'
@@ -10,11 +10,42 @@ import Leaderboard from '../components/Leaderboard'
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://golf-shot-transcription.onrender.com'
 
 export default function Home() {
-  const { user, logout } = useAuth()
+  const { user, loading, logout } = useAuth()
   const [activeTab, setActiveTab] = useState('upload')
+  const [showWelcome, setShowWelcome] = useState(false)
+
+  // Show welcome message for returning users
+  useEffect(() => {
+    if (user && !loading) {
+      const lastVisit = localStorage.getItem('lastVisit')
+      const now = Date.now()
+      const oneHour = 60 * 60 * 1000
+
+      if (!lastVisit || (now - parseInt(lastVisit)) > oneHour) {
+        setShowWelcome(true)
+        setTimeout(() => setShowWelcome(false), 5000) // Hide after 5 seconds
+      }
+      localStorage.setItem('lastVisit', now.toString())
+    }
+  }, [user, loading])
 
   const handleGoogleLogin = () => {
     window.location.href = `${API_URL}/auth/google`
+  }
+
+  // Show loading state while checking authentication
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 mx-auto bg-golf-green rounded-full flex items-center justify-center mb-4">
+            <div className="w-8 h-8 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
+          </div>
+          <h2 className="text-xl font-semibold text-gray-800 mb-2">Loading...</h2>
+          <p className="text-gray-600">Getting your golf data ready</p>
+        </div>
+      </div>
+    )
   }
 
   if (!user) {
@@ -119,6 +150,29 @@ export default function Home() {
       </Head>
 
       <div className="min-h-screen bg-gray-50">
+        {/* Welcome Banner */}
+        {showWelcome && (
+          <div className="bg-gradient-to-r from-golf-green to-golf-lightgreen text-white">
+            <div className="container mx-auto px-4 py-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <span className="text-2xl">👋</span>
+                  <div>
+                    <p className="font-semibold">Welcome back, {user.name}!</p>
+                    <p className="text-sm opacity-90">Ready to analyze some shots?</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShowWelcome(false)}
+                  className="text-white hover:bg-white hover:bg-opacity-20 rounded-full p-1"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Header */}
         <header className="bg-white shadow-sm border-b">
           <div className="container mx-auto px-4 py-4 flex justify-between items-center">
@@ -126,7 +180,7 @@ export default function Home() {
               <div className="w-10 h-10 bg-golf-green rounded-full flex items-center justify-center">
                 <span className="text-white font-bold text-lg">🏌️</span>
               </div>
-              <h1 className="text-2xl font-bold text-gray-800">Golf Shot Transcription</h1>
+              <h1 className="text-2xl font-bold text-gray-800">beatmybag.com</h1>
             </div>
             
             <div className="flex items-center space-x-4">
