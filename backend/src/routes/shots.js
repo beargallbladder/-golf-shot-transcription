@@ -216,6 +216,40 @@ router.get('/leaderboard', async (req, res) => {
   }
 });
 
+// PATCH /api/shots/:id/club - Update club for a shot
+router.patch('/:id/club', requireJWT, async (req, res) => {
+  try {
+    const shotId = req.params.id;
+    const userId = req.user.id;
+    const { club } = req.body;
+
+    // Verify shot ownership
+    const shot = await query(
+      'SELECT * FROM shots WHERE id = $1 AND user_id = $2',
+      [shotId, userId]
+    );
+
+    if (shot.rows.length === 0) {
+      return res.status(404).json({ error: 'Shot not found' });
+    }
+
+    // Update club
+    await query(
+      'UPDATE shots SET club = $1 WHERE id = $2',
+      [club, shotId]
+    );
+
+    res.json({ message: 'Club updated successfully', club });
+
+  } catch (error) {
+    console.error('Update shot club error:', error);
+    res.status(500).json({
+      error: 'Failed to update club',
+      message: error.message
+    });
+  }
+});
+
 // PATCH /api/shots/:id/visibility - Toggle shot visibility
 router.patch('/:id/visibility', requireJWT, async (req, res) => {
   try {

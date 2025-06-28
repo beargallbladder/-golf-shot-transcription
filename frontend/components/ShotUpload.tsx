@@ -12,6 +12,7 @@ interface ShotData {
   distance: number
   spin: number
   launchAngle: number
+  club: string
   createdAt: string
 }
 
@@ -23,6 +24,8 @@ const ShotUpload: React.FC<ShotUploadProps> = ({ onShotAnalyzed }) => {
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [analyzedShot, setAnalyzedShot] = useState<ShotData | null>(null)
   const [uploadedImage, setUploadedImage] = useState<string | null>(null)
+  const [editingClub, setEditingClub] = useState(false)
+  const [tempClub, setTempClub] = useState('')
 
   const convertToBase64 = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
