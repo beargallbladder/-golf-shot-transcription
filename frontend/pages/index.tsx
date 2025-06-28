@@ -7,6 +7,7 @@ import ShotUpload from '../components/ShotUpload'
 import Dashboard from '../components/Dashboard'
 import Leaderboard from '../components/Leaderboard'
 import GolfHero from '../components/GolfHero'
+import BeatMyBagLogo from '../components/BeatMyBagLogo'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://golf-shot-transcription.onrender.com'
 
@@ -111,12 +112,9 @@ export default function Home() {
           <div className="container mx-auto px-4 py-4 flex justify-between items-center">
             <button 
               onClick={() => setActiveTab('upload')}
-              className="flex items-center space-x-3 hover:opacity-80 transition-opacity group"
+              className="hover:opacity-80 transition-opacity"
             >
-              <div className="w-10 h-10 bg-golf-green rounded-full flex items-center justify-center group-hover:bg-golf-lightgreen transition-colors">
-                <span className="text-white font-bold text-lg">🏌️</span>
-              </div>
-              <h1 className="text-2xl font-bold text-gray-800 group-hover:text-golf-green transition-colors">beatmybag.com</h1>
+              <BeatMyBagLogo size="md" className="group-hover:text-golf-green transition-colors" />
             </button>
             
             <div className="flex items-center space-x-4">
