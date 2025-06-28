@@ -178,19 +178,19 @@ router.post('/retailer/upgrade', requireJWT, async (req, res) => {
     await query(`
       UPDATE users 
       SET 
-        account_type = 'retailer',
-        retailer_business_name = $1,
-        retailer_location = $2,
-        subscription_plan = $3,
-        subscription_status = 'pending',
+        account_type = $1,
+        retailer_business_name = $2,
+        retailer_location = $3,
+        subscription_plan = $4,
+        subscription_status = $5,
         daily_shot_limit = CASE 
-          WHEN $3 = 'small_shop_basic' THEN 100
-          WHEN $3 = 'small_shop_pro' THEN 999999
+          WHEN $4 = 'small_shop_basic' THEN 100
+          WHEN $4 = 'small_shop_pro' THEN 999999
           ELSE 999999
         END,
         updated_at = CURRENT_TIMESTAMP
-      WHERE id = $4
-    `, [businessName, location, plan, userId]);
+      WHERE id = $6
+    `, ['retailer', businessName, location, plan, 'pending', userId]);
 
     console.log(`🎉 RETAILER UPGRADE: ${req.user.email} upgraded to ${plan}`);
 
