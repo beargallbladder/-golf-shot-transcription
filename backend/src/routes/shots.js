@@ -30,6 +30,32 @@ router.post('/', requireJWT, validateShotUpload, async (req, res) => {
     const { imageBase64 } = req.body;
     const userId = req.user.id;
 
+    // Check daily shot limit (10 shots per day)
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    const dailyCount = await query(`
+      SELECT COUNT(*) as count
+      FROM shots 
+      WHERE user_id = $1 
+      AND created_at >= $2 
+      AND created_at < $3
+    `, [userId, today.toISOString(), tomorrow.toISOString()]);
+
+    const shotsToday = parseInt(dailyCount.rows[0].count);
+    
+    if (shotsToday >= 10) {
+      return res.status(429).json({
+        error: 'Daily limit reached',
+        message: 'You have reached your daily limit of 10 shot analyses. Try again tomorrow or upgrade to premium for unlimited shots.',
+        shotsUsed: shotsToday,
+        dailyLimit: 10,
+        resetTime: tomorrow.toISOString()
+      });
+    }
+
     // Analyze image with AI - NO FAKE DATA EVER
     if (!process.env.OPENAI_API_KEY) {
       return res.status(500).json({
