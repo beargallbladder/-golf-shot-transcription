@@ -109,12 +109,15 @@ export default function Home() {
         {/* Header */}
         <header className="bg-white shadow-sm border-b">
           <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-golf-green rounded-full flex items-center justify-center">
+            <button 
+              onClick={() => setActiveTab('upload')}
+              className="flex items-center space-x-3 hover:opacity-80 transition-opacity group"
+            >
+              <div className="w-10 h-10 bg-golf-green rounded-full flex items-center justify-center group-hover:bg-golf-lightgreen transition-colors">
                 <span className="text-white font-bold text-lg">🏌️</span>
               </div>
-              <h1 className="text-2xl font-bold text-gray-800">beatmybag.com</h1>
-            </div>
+              <h1 className="text-2xl font-bold text-gray-800 group-hover:text-golf-green transition-colors">beatmybag.com</h1>
+            </button>
             
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-2">
