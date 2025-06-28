@@ -115,6 +115,13 @@ const createTablesNoExit = async () => {
     `);
     console.log('✅ Admin column added');
 
+    // Add club column to shots table
+    await query(`
+      ALTER TABLE shots 
+      ADD COLUMN IF NOT EXISTS club VARCHAR(50);
+    `);
+    console.log('✅ Club column added');
+
     // Set samkim@samkim.com as admin
     await query(`
       UPDATE users 

@@ -1,5 +1,6 @@
 const express = require('express');
 const { query } = require('../database/db');
+const { generateShareContent, generateSocialMetaTags, generateShareUrls, generatePerformanceInsights } = require('../services/shareContent');
 
 const router = express.Router();
 
@@ -31,20 +32,38 @@ router.get('/shot/:id', async (req, res) => {
 
     const shot = result.rows[0];
 
-    // Return shot data for sharing
+    // Prepare shot data
+    const shotData = {
+      id: shot.id,
+      speed: shot.speed ? parseFloat(shot.speed) : null,
+      distance: shot.distance ? parseInt(shot.distance) : null,
+      spin: shot.spin ? parseInt(shot.spin) : null,
+      launchAngle: shot.launch_angle ? parseFloat(shot.launch_angle) : null,
+      club: shot.club,
+      createdAt: shot.created_at,
+      imageData: shot.image_data,
+      user: {
+        name: shot.user_name,
+        avatar: shot.user_avatar
+      }
+    };
+
+    // Generate enhanced sharing content
+    const shareUrl = `https://beatmybag.com/share/shot/${shot.id}`;
+    const shareContent = generateShareContent(shotData);
+    const socialMetaTags = generateSocialMetaTags(shotData, shareUrl);
+    const shareUrls = generateShareUrls(shotData, shareUrl);
+    const insights = generatePerformanceInsights(shotData);
+
+    // Return enhanced shot data for sharing
     res.json({
-      shot: {
-        id: shot.id,
-        speed: shot.speed ? parseFloat(shot.speed) : null,
-        distance: shot.distance ? parseInt(shot.distance) : null,
-        spin: shot.spin ? parseInt(shot.spin) : null,
-        launchAngle: shot.launch_angle ? parseFloat(shot.launch_angle) : null,
-        createdAt: shot.created_at,
-        imageData: shot.image_data,
-        user: {
-          name: shot.user_name,
-          avatar: shot.user_avatar
-        }
+      shot: shotData,
+      sharing: {
+        content: shareContent,
+        metaTags: socialMetaTags,
+        shareUrls: shareUrls,
+        insights: insights,
+        shareUrl: shareUrl
       }
     });
 

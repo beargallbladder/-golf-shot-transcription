@@ -73,8 +73,8 @@ router.post('/', requireJWT, validateShotUpload, async (req, res) => {
 
     // Save shot to database
     const result = await query(`
-      INSERT INTO shots (user_id, speed, distance, spin, launch_angle, image_data)
-      VALUES ($1, $2, $3, $4, $5, $6)
+      INSERT INTO shots (user_id, speed, distance, spin, launch_angle, club, image_data)
+      VALUES ($1, $2, $3, $4, $5, $6, $7)
       RETURNING *
     `, [
       userId,
@@ -82,6 +82,7 @@ router.post('/', requireJWT, validateShotUpload, async (req, res) => {
       shotData.distance,
       shotData.spin,
       shotData.launchAngle,
+      shotData.club,
       imageBase64 // Store the image for sharing
     ]);
 
@@ -95,6 +96,7 @@ router.post('/', requireJWT, validateShotUpload, async (req, res) => {
         distance: savedShot.distance ? parseInt(savedShot.distance) : null,
         spin: savedShot.spin ? parseInt(savedShot.spin) : null,
         launchAngle: savedShot.launch_angle ? parseFloat(savedShot.launch_angle) : null,
+        club: savedShot.club,
         createdAt: savedShot.created_at
       },
       shareUrl: `/share/shot/${savedShot.id}`
@@ -147,13 +149,18 @@ router.get('/me', requireJWT, async (req, res) => {
 // GET /api/shots/leaderboard - Get leaderboard
 router.get('/leaderboard', async (req, res) => {
   try {
-    const { period = 'all', metric = 'distance', limit = 10 } = req.query;
+    const { period = 'all', metric = 'distance', limit = 10, club = 'all' } = req.query;
     
     let timeFilter = '';
     if (period === 'day') {
       timeFilter = "AND created_at >= NOW() - INTERVAL '1 day'";
     } else if (period === 'week') {
       timeFilter = "AND created_at >= NOW() - INTERVAL '1 week'";
+    }
+
+    let clubFilter = '';
+    if (club !== 'all' && club) {
+      clubFilter = `AND s.club = '${club.replace(/'/g, "''")}'`; // SQL injection protection
     }
 
     // Validate metric
@@ -168,12 +175,13 @@ router.get('/leaderboard', async (req, res) => {
         s.distance,
         s.spin,
         s.launch_angle,
+        s.club,
         s.created_at,
         u.name as user_name,
         u.profile_picture as user_avatar
       FROM shots s
       JOIN users u ON s.user_id = u.id
-      WHERE s.${orderMetric} IS NOT NULL ${timeFilter}
+      WHERE s.${orderMetric} IS NOT NULL ${timeFilter} ${clubFilter}
       ORDER BY s.${orderMetric} DESC
       LIMIT $1
     `, [parseInt(limit)]);
@@ -185,6 +193,7 @@ router.get('/leaderboard', async (req, res) => {
       distance: shot.distance ? parseInt(shot.distance) : null,
       spin: shot.spin ? parseInt(shot.spin) : null,
       launchAngle: shot.launch_angle ? parseFloat(shot.launch_angle) : null,
+      club: shot.club,
       createdAt: shot.created_at,
       user: {
         name: shot.user_name,

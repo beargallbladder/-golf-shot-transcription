@@ -201,24 +201,82 @@ const ShotUpload: React.FC<ShotUploadProps> = ({ onShotAnalyzed }) => {
               </div>
             </div>
 
-            {/* Action Buttons */}
-            <div className="flex justify-center space-x-4">
-              <button
-                onClick={resetUpload}
-                className="px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
-              >
-                Upload Another Shot
-              </button>
-              <button
-                onClick={() => {
-                  const shareUrl = `${window.location.origin}/share/shot/${analyzedShot.id}`
-                  navigator.clipboard.writeText(shareUrl)
-                  toast.success('Share link copied to clipboard!')
-                }}
-                className="px-6 py-3 bg-golf-green text-white rounded-lg hover:bg-golf-lightgreen transition-colors"
-              >
-                Share Shot
-              </button>
+            {/* Enhanced Action Buttons */}
+            <div className="space-y-4">
+              {/* Share Message */}
+              <div className="text-center p-4 bg-white bg-opacity-30 rounded-lg">
+                <p className="text-white font-bold text-lg mb-2">
+                  🔥 {analyzedShot.distance} yards! Still pounding it! 💪
+                </p>
+                <p className="text-white text-sm opacity-90">Ready to share this shot?</p>
+              </div>
+
+              {/* Quick Share Buttons */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <button
+                  onClick={() => {
+                    const shareUrl = `${window.location.origin}/share/shot/${analyzedShot.id}`
+                    const shareText = `🔥 ${analyzedShot.distance} yards! Still pounding it! 💪 beatmybag.com 🏌️‍♂️ #golf #beatmybag`
+                    const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`
+                    window.open(twitterUrl, '_blank')
+                  }}
+                  className="px-4 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                >
+                  🐦 Twitter
+                </button>
+                
+                <button
+                  onClick={() => {
+                    const shareUrl = `${window.location.origin}/share/shot/${analyzedShot.id}`
+                    const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`
+                    window.open(facebookUrl, '_blank')
+                  }}
+                  className="px-4 py-3 bg-blue-700 text-white rounded-lg hover:bg-blue-800 transition-colors"
+                >
+                  📘 Facebook
+                </button>
+                
+                <button
+                  onClick={() => {
+                    const shareUrl = `${window.location.origin}/share/shot/${analyzedShot.id}`
+                    const shareText = `🔥 ${analyzedShot.distance} yards! Still pounding it! 💪`
+                    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText + ' ' + shareUrl)}`
+                    window.open(whatsappUrl, '_blank')
+                  }}
+                  className="px-4 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+                >
+                  💬 WhatsApp
+                </button>
+                
+                <button
+                  onClick={() => {
+                    const shareUrl = `${window.location.origin}/share/shot/${analyzedShot.id}`
+                    navigator.clipboard.writeText(shareUrl)
+                    toast.success('Share link copied to clipboard!')
+                  }}
+                  className="px-4 py-3 bg-white bg-opacity-20 text-white rounded-lg hover:bg-opacity-30 transition-colors"
+                >
+                  📋 Copy Link
+                </button>
+              </div>
+
+              {/* Secondary Actions */}
+              <div className="flex justify-center space-x-4">
+                <button
+                  onClick={resetUpload}
+                  className="px-6 py-3 bg-white bg-opacity-20 text-white rounded-lg hover:bg-opacity-30 transition-colors"
+                >
+                  Upload Another Shot
+                </button>
+                <a
+                  href={`/share/shot/${analyzedShot.id}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-6 py-3 bg-white text-golf-green rounded-lg hover:bg-gray-100 transition-colors font-semibold"
+                >
+                  View Full Share Page
+                </a>
+              </div>
             </div>
           </div>
         )}

@@ -12,6 +12,7 @@ interface SharedShot {
   distance: number
   spin: number
   launchAngle: number
+  club?: string
   createdAt: string
   imageData: string
   user: {
@@ -20,10 +21,48 @@ interface SharedShot {
   }
 }
 
+interface SharingData {
+  content: {
+    title: string
+    description: string
+    shareText: string
+    hashtags: string
+    twitterText: string
+    facebookText: string
+    instagramText: string
+  }
+  metaTags: {
+    title: string
+    description: string
+    ogTitle: string
+    ogDescription: string
+    ogType: string
+    ogUrl: string
+    ogSiteName: string
+    twitterCard: string
+    twitterTitle: string
+    twitterDescription: string
+    twitterSite: string
+    author: string
+    keywords: string
+  }
+  shareUrls: {
+    twitter: string
+    facebook: string
+    linkedin: string
+    whatsapp: string
+    email: string
+    copy: string
+  }
+  insights: string[]
+  shareUrl: string
+}
+
 const SharedShotPage: React.FC = () => {
   const router = useRouter()
   const { id } = router.query
   const [shot, setShot] = useState<SharedShot | null>(null)
+  const [sharing, setSharing] = useState<SharingData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
@@ -37,6 +76,7 @@ const SharedShotPage: React.FC = () => {
     try {
       const response = await axios.get(`${API_URL}/share/shot/${id}`)
       setShot(response.data.shot)
+      setSharing(response.data.sharing)
     } catch (error: any) {
       console.error('Fetch shared shot error:', error)
       setError(error.response?.data?.error || 'Failed to load shot')
@@ -93,16 +133,22 @@ const SharedShotPage: React.FC = () => {
         <meta name="description" content={`Check out this golf shot: ${shot.distance || 'N/A'} yards distance, ${shot.speed || 'N/A'} mph speed`} />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         
-        {/* Open Graph tags for social sharing */}
-        <meta property="og:title" content={`${shot.user.name}'s Golf Shot`} />
-        <meta property="og:description" content={`Distance: ${shot.distance || 'N/A'} yards | Speed: ${shot.speed || 'N/A'} mph | Spin: ${shot.spin || 'N/A'} rpm`} />
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content={typeof window !== 'undefined' ? window.location.href : ''} />
+        {/* Enhanced Open Graph tags for social sharing */}
+        <meta property="og:title" content={sharing?.metaTags.ogTitle || `${shot.user.name}'s Golf Shot`} />
+        <meta property="og:description" content={sharing?.metaTags.ogDescription || `Distance: ${shot.distance || 'N/A'} yards | Speed: ${shot.speed || 'N/A'} mph | Spin: ${shot.spin || 'N/A'} rpm`} />
+        <meta property="og:type" content={sharing?.metaTags.ogType || "website"} />
+        <meta property="og:url" content={sharing?.metaTags.ogUrl || (typeof window !== 'undefined' ? window.location.href : '')} />
+        <meta property="og:site_name" content={sharing?.metaTags.ogSiteName || "Beat My Bag"} />
         
-        {/* Twitter Card tags */}
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={`${shot.user.name}'s Golf Shot`} />
-        <meta name="twitter:description" content={`Distance: ${shot.distance || 'N/A'} yards | Speed: ${shot.speed || 'N/A'} mph`} />
+        {/* Enhanced Twitter Card tags */}
+        <meta name="twitter:card" content={sharing?.metaTags.twitterCard || "summary_large_image"} />
+        <meta name="twitter:title" content={sharing?.metaTags.twitterTitle || `${shot.user.name}'s Golf Shot`} />
+        <meta name="twitter:description" content={sharing?.metaTags.twitterDescription || `Distance: ${shot.distance || 'N/A'} yards | Speed: ${shot.speed || 'N/A'} mph`} />
+        <meta name="twitter:site" content={sharing?.metaTags.twitterSite || "@beatmybag"} />
+        
+        {/* Additional meta tags */}
+        <meta name="author" content={sharing?.metaTags.author || shot.user.name} />
+        <meta name="keywords" content={sharing?.metaTags.keywords || "golf, shot analysis, beat my bag"} />
       </Head>
 
       <div className="min-h-screen bg-gray-50">
@@ -191,14 +237,70 @@ const SharedShotPage: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Share Button */}
-                <div className="text-center">
-                  <button
-                    onClick={copyShareLink}
-                    className="px-6 py-3 bg-golf-green text-white rounded-lg hover:bg-golf-lightgreen transition-colors"
-                  >
-                    📋 Copy Share Link
-                  </button>
+                {/* Performance Insights */}
+                {sharing?.insights && sharing.insights.length > 0 && (
+                  <div className="mb-6">
+                    <h4 className="text-lg font-semibold text-gray-800 mb-3 text-center">Performance Insights</h4>
+                    <div className="flex flex-wrap justify-center gap-2">
+                      {sharing.insights.map((insight, index) => (
+                        <span
+                          key={index}
+                          className="px-3 py-1 bg-golf-green text-white rounded-full text-sm font-medium"
+                        >
+                          {insight}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Enhanced Share Buttons */}
+                <div className="space-y-4">
+                  {/* Share Message */}
+                  {sharing?.content.shareText && (
+                    <div className="text-center p-4 bg-gray-50 rounded-lg">
+                      <p className="text-lg font-semibold text-gray-800 mb-2">Share this shot:</p>
+                      <p className="text-golf-green font-bold text-xl">{sharing.content.shareText}</p>
+                    </div>
+                  )}
+
+                  {/* Social Share Buttons */}
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    {sharing?.shareUrls && (
+                      <>
+                        <a
+                          href={sharing.shareUrls.twitter}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center justify-center px-4 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                        >
+                          🐦 Twitter
+                        </a>
+                        <a
+                          href={sharing.shareUrls.facebook}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center justify-center px-4 py-3 bg-blue-700 text-white rounded-lg hover:bg-blue-800 transition-colors"
+                        >
+                          📘 Facebook
+                        </a>
+                        <a
+                          href={sharing.shareUrls.whatsapp}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center justify-center px-4 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+                        >
+                          💬 WhatsApp
+                        </a>
+                        <button
+                          onClick={copyShareLink}
+                          className="flex items-center justify-center px-4 py-3 bg-golf-green text-white rounded-lg hover:bg-golf-lightgreen transition-colors"
+                        >
+                          📋 Copy Link
+                        </button>
+                      </>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>

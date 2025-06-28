@@ -14,17 +14,18 @@ const analyzeShotImage = async (imageBase64) => {
       messages: [
         {
           role: "system",
-          content: `You are a golf shot analyzer. Extract numeric golf shot data from simulator display images. 
-          Return ONLY valid JSON with these exact fields: speed (mph), distance (yards), spin (rpm), launchAngle (degrees).
+          content: `You are a golf shot analyzer. Extract golf shot data from simulator display images. 
+          Return ONLY valid JSON with these exact fields: speed (mph), distance (yards), spin (rpm), launchAngle (degrees), club (string).
+          For club, infer from the metrics: Driver (230+ yards), 3-Wood (200-230), 5-Wood/Hybrid (180-200), Long Iron 3-5 (160-180), Mid Iron 6-7 (140-160), Short Iron 8-9 (120-140), Wedge (60-120), Putter (0-60).
           If you cannot clearly read a value, use null for that field.
-          Example: {"speed": 145.2, "distance": 285, "spin": 2450, "launchAngle": 12.5}`
+          Example: {"speed": 145.2, "distance": 285, "spin": 2450, "launchAngle": 12.5, "club": "Driver"}`
         },
         {
           role: "user",
           content: [
             {
               type: "text",
-              text: "Please extract the golf shot metrics from this simulator display image. Return only the JSON with speed, distance, spin, and launchAngle."
+              text: "Please extract the golf shot metrics from this simulator display image. Return only the JSON with speed, distance, spin, launchAngle, and club (inferred from distance/metrics)."
             },
             {
               type: "image_url",
@@ -69,6 +70,9 @@ const analyzeShotImage = async (imageBase64) => {
         validatedData[field] = null;
       }
     }
+    
+    // Add club (string field)
+    validatedData.club = shotData.club || null;
 
     console.log('✅ Extracted shot data:', validatedData);
     return validatedData;
