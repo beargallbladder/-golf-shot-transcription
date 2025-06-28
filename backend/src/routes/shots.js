@@ -328,6 +328,30 @@ router.get('/my-bag', requireJWT, async (req, res) => {
   try {
     const userId = req.user.id;
     
+    // Debug: Check if personal_bests table exists
+    try {
+      await query('SELECT COUNT(*) FROM personal_bests WHERE user_id = $1', [userId]);
+      console.log('✅ personal_bests table exists');
+    } catch (tableError) {
+      console.error('❌ personal_bests table missing:', tableError.message);
+      return res.json({ 
+        bag: [],
+        stats: { totalClubs: 15, clubsWithData: 0, clubsRemaining: 15, completionPercentage: 0 },
+        message: "Database not ready - personal_bests table missing. Contact admin.",
+        debug: { tableExists: false, error: tableError.message }
+      });
+    }
+
+    // Debug: Check user's shots with clubs
+    const shotsWithClubs = await query(`
+      SELECT id, club, distance, speed, spin, launch_angle, created_at 
+      FROM shots 
+      WHERE user_id = $1 AND club IS NOT NULL
+      ORDER BY created_at DESC
+    `, [userId]);
+    
+    console.log(`📊 User ${userId} has ${shotsWithClubs.rows.length} shots with club data`);
+    
     const [bag, stats] = await Promise.all([
       getUserBag(userId),
       getBagStats(userId)
@@ -338,14 +362,20 @@ router.get('/my-bag', requireJWT, async (req, res) => {
       stats,
       message: stats.clubsWithData === 0 
         ? "Start building your bag by uploading shots with different clubs!"
-        : `You've got ${stats.clubsWithData} clubs in your bag. ${stats.clubsRemaining} to go!`
+        : `You've got ${stats.clubsWithData} clubs in your bag. ${stats.clubsRemaining} to go!`,
+      debug: { 
+        tableExists: true, 
+        shotsWithClubs: shotsWithClubs.rows.length,
+        recentShots: shotsWithClubs.rows.slice(0, 3)
+      }
     });
 
   } catch (error) {
     console.error('Get my bag error:', error);
     res.status(500).json({
       error: 'Failed to fetch your bag',
-      message: error.message
+      message: error.message,
+      debug: { error: error.message }
     });
   }
 });
