@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import toast from 'react-hot-toast'
-import { TrophyIcon, FireIcon, BoltIcon } from '@heroicons/react/24/outline'
+import { TrophyIcon, FireIcon, BoltIcon, ShareIcon } from '@heroicons/react/24/outline'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://golf-shot-transcription.onrender.com'
 
@@ -82,6 +82,56 @@ const Leaderboard: React.FC = () => {
       month: 'short',
       day: 'numeric'
     })
+  }
+
+  const shareShot = async (entry: LeaderboardEntry) => {
+    try {
+      // Get enhanced sharing data from backend
+      const response = await axios.get(`${API_URL}/share/shot/${entry.id}`)
+      const { sharing } = response.data
+      
+      // Create share options
+      const shareUrl = `${window.location.origin}/share/shot/${entry.id}`
+      const shareText = sharing.content.shareText || `🏌️‍♂️ ${entry.distance} yards! Check this out!`
+      
+      // Try native sharing first (mobile)
+      if (navigator.share) {
+        await navigator.share({
+          title: sharing.content.title,
+          text: shareText,
+          url: shareUrl,
+        })
+      } else {
+        // Fallback: copy to clipboard
+        await navigator.clipboard.writeText(`${shareText} ${shareUrl}`)
+        toast.success('Share link copied to clipboard!')
+      }
+    } catch (error) {
+      console.error('Share error:', error)
+      // Fallback: basic share
+      const shareUrl = `${window.location.origin}/share/shot/${entry.id}`
+      const shareText = `🏌️‍♂️ ${entry.distance} yards! Check this out!`
+      
+      try {
+        await navigator.clipboard.writeText(`${shareText} ${shareUrl}`)
+        toast.success('Share link copied to clipboard!')
+      } catch (clipboardError) {
+        toast.error('Unable to share')
+      }
+    }
+  }
+
+  const shareToTwitter = (entry: LeaderboardEntry) => {
+    const shareUrl = `${window.location.origin}/share/shot/${entry.id}`
+    const shareText = `🔥 ${entry.distance} yards! Still pounding it! 💪 #golf #beatmybag`
+    const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`
+    window.open(twitterUrl, '_blank')
+  }
+
+  const shareToFacebook = (entry: LeaderboardEntry) => {
+    const shareUrl = `${window.location.origin}/share/shot/${entry.id}`
+    const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`
+    window.open(facebookUrl, '_blank')
   }
 
   return (
@@ -197,6 +247,54 @@ const Leaderboard: React.FC = () => {
                     <div>Speed: {entry.speed ? entry.speed.toFixed(1) : 'N/A'} mph</div>
                     <div>Distance: {entry.distance || 'N/A'} yards</div>
                     <div>Spin: {entry.spin || 'N/A'} rpm</div>
+                  </div>
+                </div>
+
+                {/* Share Button */}
+                <div className="flex-shrink-0">
+                  <div className="flex items-center space-x-2">
+                    {/* Quick Share Button */}
+                    <button
+                      onClick={() => shareShot(entry)}
+                      className="p-2 text-gray-400 hover:text-golf-green hover:bg-gray-100 rounded-lg transition-colors"
+                      title="Share this shot"
+                    >
+                      <ShareIcon className="w-5 h-5" />
+                    </button>
+                    
+                    {/* Social Share Dropdown */}
+                    <div className="relative group">
+                      <button className="p-2 text-gray-400 hover:text-golf-green hover:bg-gray-100 rounded-lg transition-colors">
+                        <span className="text-sm">⚡</span>
+                      </button>
+                      
+                      {/* Dropdown Menu */}
+                      <div className="absolute right-0 top-full mt-1 w-40 bg-white rounded-lg shadow-lg border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10">
+                        <div className="py-1">
+                          <button
+                            onClick={() => shareToTwitter(entry)}
+                            className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center space-x-2"
+                          >
+                            <span>🐦</span>
+                            <span>Twitter</span>
+                          </button>
+                          <button
+                            onClick={() => shareToFacebook(entry)}
+                            className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center space-x-2"
+                          >
+                            <span>📘</span>
+                            <span>Facebook</span>
+                          </button>
+                          <button
+                            onClick={() => shareShot(entry)}
+                            className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 flex items-center space-x-2"
+                          >
+                            <span>📋</span>
+                            <span>Copy Link</span>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
