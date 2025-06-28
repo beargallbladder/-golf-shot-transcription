@@ -95,8 +95,17 @@ const ShotUpload: React.FC<ShotUploadProps> = ({ onShotAnalyzed }) => {
 
   return (
     <div className="max-w-4xl mx-auto">
-      <div className="bg-white rounded-xl shadow-lg p-8">
-        <div className="text-center mb-8">
+      <div className="bg-white rounded-xl shadow-lg p-8 relative overflow-hidden">
+        {/* Golf Course Background */}
+        <div 
+          className="absolute inset-0 opacity-5"
+          style={{
+            backgroundImage: 'url(/images/golf/585AF507-959E-4DEB-80ED-29B39004DFCC_1_105_c.jpeg)',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+          }}
+        />
+        <div className="text-center mb-8 relative z-10">
           <h2 className="text-3xl font-bold text-gray-800 mb-2">Upload Golf Shot</h2>
           <p className="text-gray-600">
             Take a photo or upload a screenshot of your golf simulator display

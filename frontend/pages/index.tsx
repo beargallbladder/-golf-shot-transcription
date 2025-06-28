@@ -83,7 +83,17 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gray-50 relative">
+        {/* Subtle Golf Course Background */}
+        <div 
+          className="fixed inset-0 opacity-3"
+          style={{
+            backgroundImage: 'url(/images/golf/3BB27E62-317B-474D-9651-7FEF8FEAC6DC_1_105_c.jpeg)',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundAttachment: 'fixed',
+          }}
+        />
         {/* Welcome Banner */}
         {showWelcome && (
           <div className="bg-gradient-to-r from-golf-green to-golf-lightgreen text-white">

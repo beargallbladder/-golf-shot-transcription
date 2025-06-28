@@ -137,7 +137,16 @@ const Leaderboard: React.FC = () => {
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       {/* Header with filters */}
-      <div className="bg-white rounded-xl shadow-lg p-6">
+      <div className="bg-white rounded-xl shadow-lg p-6 relative overflow-hidden">
+        {/* Golf Course Background */}
+        <div 
+          className="absolute inset-0 opacity-5"
+          style={{
+            backgroundImage: 'url(/images/golf/B27AFE22-7DB3-4355-9938-75DBDDC2129A_1_105_c.jpeg)',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+          }}
+        />
         <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
           <div>
             <h2 className="text-3xl font-bold text-gray-800 mb-2">🏆 Leaderboard</h2>
