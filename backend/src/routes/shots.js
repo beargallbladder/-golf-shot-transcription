@@ -328,18 +328,44 @@ router.get('/my-bag', requireJWT, async (req, res) => {
   try {
     const userId = req.user.id;
     
-    // Debug: Check if personal_bests table exists
+    // Debug: Check if personal_bests table exists and create if missing
     try {
       await query('SELECT COUNT(*) FROM personal_bests WHERE user_id = $1', [userId]);
       console.log('✅ personal_bests table exists');
     } catch (tableError) {
-      console.error('❌ personal_bests table missing:', tableError.message);
-      return res.json({ 
-        bag: [],
-        stats: { totalClubs: 15, clubsWithData: 0, clubsRemaining: 15, completionPercentage: 0 },
-        message: "Database not ready - personal_bests table missing. Contact admin.",
-        debug: { tableExists: false, error: tableError.message }
-      });
+      console.error('❌ personal_bests table missing, creating it now...');
+      try {
+        // Create the table
+        await query(`
+          CREATE TABLE IF NOT EXISTS personal_bests (
+            id SERIAL PRIMARY KEY,
+            user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+            club VARCHAR(50) NOT NULL,
+            shot_id INTEGER REFERENCES shots(id) ON DELETE CASCADE,
+            distance INTEGER,
+            speed DECIMAL(5,1),
+            spin INTEGER,
+            launch_angle DECIMAL(4,1),
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(user_id, club)
+          )
+        `);
+        
+        // Create indexes
+        await query(`CREATE INDEX IF NOT EXISTS idx_personal_bests_user_id ON personal_bests(user_id)`);
+        await query(`CREATE INDEX IF NOT EXISTS idx_personal_bests_club ON personal_bests(club)`);
+        
+        console.log('✅ personal_bests table created successfully');
+      } catch (createError) {
+        console.error('❌ Failed to create personal_bests table:', createError.message);
+        return res.json({ 
+          bag: [],
+          stats: { totalClubs: 15, clubsWithData: 0, clubsRemaining: 15, completionPercentage: 0 },
+          message: "Database setup failed. Please try again later.",
+          debug: { tableExists: false, createError: createError.message }
+        });
+      }
     }
 
     // Debug: Check user's shots with clubs
