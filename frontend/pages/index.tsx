@@ -7,7 +7,7 @@ import ShotUpload from '../components/ShotUpload'
 import Dashboard from '../components/Dashboard'
 import Leaderboard from '../components/Leaderboard'
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://golf-shot-transcription.onrender.com'
 
 export default function Home() {
   const { user, logout } = useAuth()
