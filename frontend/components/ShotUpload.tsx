@@ -115,7 +115,7 @@ const ShotUpload: React.FC<ShotUploadProps> = ({ onShotAnalyzed }) => {
         {!analyzedShot && (
           <div
             {...getRootProps()}
-            className={`border-2 border-dashed rounded-xl p-12 text-center cursor-pointer transition-colors ${
+            className={`border-2 border-dashed rounded-xl p-12 text-center cursor-pointer transition-colors relative z-20 ${
               isDragActive
                 ? 'border-golf-green bg-golf-green bg-opacity-5'
                 : 'border-gray-300 hover:border-golf-green hover:bg-gray-50'
