@@ -190,7 +190,7 @@ router.post('/retailer/upgrade', requireJWT, async (req, res) => {
         END,
         updated_at = CURRENT_TIMESTAMP
       WHERE id = $6
-    `, ['retailer', businessName, location, plan, 'pending', userId]);
+    `, ['retailer', String(businessName || ''), String(location || ''), String(plan), 'pending', userId]);
 
     console.log(`🎉 RETAILER UPGRADE: ${req.user.email} upgraded to ${plan}`);
 
