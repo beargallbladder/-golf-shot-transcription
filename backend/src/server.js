@@ -6,6 +6,11 @@ const session = require('express-session');
 const passport = require('passport');
 const rateLimit = require('express-rate-limit');
 
+// Production-grade configuration
+const { validateEnvironment, config } = require('./config/environment');
+const { configureAxios } = require('./config/axios');
+const { runMigrations } = require('./config/migrations');
+
 // Import routes
 const authRoutes = require('./routes/auth');
 const shotRoutes = require('./routes/shots');
@@ -130,14 +135,17 @@ app.use('*', (req, res) => {
   res.status(404).json({ error: 'Route not found' });
 });
 
-// Run database migration on startup
-const { createTablesNoExit } = require('./database/migrate');
-
 const startServer = async () => {
   try {
-    // Run migration
-    await createTablesNoExit();
-    console.log('✅ Database migration completed');
+    // Validate environment configuration
+    validateEnvironment();
+    
+    // Configure axios interceptors
+    configureAxios();
+    
+    // Run production-grade migrations
+    await runMigrations();
+    console.log('✅ Database migrations completed');
     
     // Ensure we bind to 0.0.0.0 for Render
     const server = app.listen(PORT, '0.0.0.0', () => {

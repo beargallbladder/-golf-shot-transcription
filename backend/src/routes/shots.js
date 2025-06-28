@@ -35,17 +35,8 @@ router.post('/', requireJWT, validateShotUpload, async (req, res) => {
     const userResult = await query('SELECT * FROM users WHERE id = $1', [userId]);
     const user = userResult.rows[0];
     
-    // Retailer whitelist - ONLY these emails can access retailer features
-    const RETAILER_WHITELIST = [
-      'samkim@samkim.com',
-      // FIRST CUSTOMER - Fairway Golf USA (San Diego)
-      'info@fairwaygolfusa.com',
-      'sales@fairwaygolfusa.com',
-      'custom@fairwaygolfusa.com',
-      // Add more beta retailers here when ready to expand
-    ];
-    
-    const isRetailerWhitelisted = RETAILER_WHITELIST.includes(user.email.toLowerCase());
+    const { config } = require('../config/environment');
+    const isRetailerWhitelisted = config.retailerBetaEmails.includes(user.email.toLowerCase());
     const isRetailer = user.account_type === 'retailer' && isRetailerWhitelisted;
     const userDailyLimit = user.daily_shot_limit || 10;
 

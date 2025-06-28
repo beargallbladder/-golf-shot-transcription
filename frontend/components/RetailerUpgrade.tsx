@@ -1,10 +1,7 @@
 import React, { useState, useEffect } from 'react'
-import axios from 'axios'
-import Cookies from 'js-cookie'
 import toast from 'react-hot-toast'
 import { CheckIcon, StarIcon, ArrowRightIcon } from '@heroicons/react/24/outline'
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://golf-shot-transcription.onrender.com'
+import apiClient from '../config/axios'
 
 interface Plan {
   id: string
@@ -47,13 +44,7 @@ const RetailerUpgrade: React.FC<RetailerUpgradeProps> = ({ user, onUpgradeComple
     try {
       setLoading(true)
       
-      // Ensure auth header is set
-      const token = Cookies.get('auth_token')
-      if (token) {
-        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
-      }
-      
-      const response = await axios.get(`${API_URL}/auth/retailer/pricing`)
+      const response = await apiClient.get('/auth/retailer/pricing')
       setPlans(response.data.plans)
       // Auto-select recommended plan
       const recommended = response.data.plans.find((p: Plan) => p.recommended)
@@ -78,16 +69,7 @@ const RetailerUpgrade: React.FC<RetailerUpgradeProps> = ({ user, onUpgradeComple
     try {
       setUpgrading(true)
       
-      // Ensure auth header is set
-      const token = Cookies.get('auth_token')
-      if (!token) {
-        toast.error('Please log in again to continue')
-        return
-      }
-      
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
-      
-      const response = await axios.post(`${API_URL}/auth/retailer/upgrade`, {
+      const response = await apiClient.post('/auth/retailer/upgrade', {
         plan: selectedPlan,
         businessName: businessName.trim(),
         location: location.trim()
