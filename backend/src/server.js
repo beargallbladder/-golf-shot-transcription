@@ -64,6 +64,16 @@ app.get('/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
+// Simple root endpoint for Render port detection
+app.get('/', (req, res) => {
+  res.json({ 
+    message: 'Golf Shot Transcription API', 
+    status: 'running',
+    port: process.env.PORT || 3001,
+    timestamp: new Date().toISOString() 
+  });
+});
+
 // Favicon route to prevent 404 errors
 app.get('/favicon.ico', (req, res) => {
   res.status(204).end();
@@ -121,12 +131,12 @@ app.use('*', (req, res) => {
 });
 
 // Run database migration on startup
-const { createTables } = require('./database/migrate');
+const { createTablesNoExit } = require('./database/migrate');
 
 const startServer = async () => {
   try {
     // Run migration
-    await createTables();
+    await createTablesNoExit();
     console.log('✅ Database migration completed');
     
     // Ensure we bind to 0.0.0.0 for Render
@@ -135,6 +145,8 @@ const startServer = async () => {
       console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
       console.log(`🔑 Using Google Client ID ending with: ${process.env.GOOGLE_CLIENT_ID ? process.env.GOOGLE_CLIENT_ID.slice(-10) : 'NOT_SET'}`);
       console.log(`📡 Server accessible at: http://0.0.0.0:${PORT}`);
+      console.log(`🎯 PORT detected by Render: ${PORT}`);
+      console.log(`✅ Server is ready to accept connections`);
     });
     
     // Handle server errors
