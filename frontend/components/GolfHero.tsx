@@ -52,26 +52,26 @@ const GolfHero: React.FC<GolfHeroProps> = ({ onLogin }) => {
       {/* Content */}
       <div className="relative z-10 min-h-screen flex items-center">
         <div className="container mx-auto px-4 py-8">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
+          <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
             {/* Left Side - Hero Text */}
-            <div className="text-white space-y-8">
-              <div className="space-y-6">
-                <div className="flex items-center space-x-3">
-                  <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
-                    <span className="text-3xl">🏌️</span>
+            <div className="text-white space-y-6 lg:space-y-8 text-center lg:text-left">
+              <div className="space-y-4 lg:space-y-6">
+                <div className="flex items-center justify-center lg:justify-start space-x-3">
+                  <div className="w-12 h-12 lg:w-16 lg:h-16 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
+                    <span className="text-2xl lg:text-3xl">🏌️</span>
                   </div>
-                  <div className="text-golf-sand font-bold text-xl tracking-wide">
+                  <div className="text-golf-sand font-bold text-lg lg:text-xl tracking-wide">
                     BEATMYBAG.COM
                   </div>
                 </div>
                 
-                <h1 className="text-5xl lg:text-7xl font-bold leading-tight">
+                <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold leading-tight">
                   Track Every
                   <br />
                   <span className="text-golf-sand">Yard</span>
                 </h1>
                 
-                <p className="text-xl lg:text-2xl opacity-90 leading-relaxed max-w-2xl">
+                <p className="text-lg sm:text-xl lg:text-2xl opacity-90 leading-relaxed max-w-2xl mx-auto lg:mx-0">
                   Transform your golf simulator screenshots into detailed performance insights. 
                   <span className="text-golf-sand font-semibold"> AI-powered analysis</span> that helps you 
                   crush your personal records.
@@ -111,28 +111,28 @@ const GolfHero: React.FC<GolfHeroProps> = ({ onLogin }) => {
             </div>
 
             {/* Right Side - Login Card */}
-            <div className="flex justify-center lg:justify-end">
-              <div className="w-full max-w-md">
-                <div className="bg-white/95 backdrop-blur-sm rounded-3xl shadow-2xl p-8 border border-white/20">
-                  <div className="text-center mb-8">
-                    <div className="w-16 h-16 bg-gradient-to-br from-golf-green to-golf-lightgreen rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
-                      <CameraIcon className="w-8 h-8 text-white" />
+            <div className="flex justify-center lg:justify-end mt-8 lg:mt-0">
+              <div className="w-full max-w-md mx-4 lg:mx-0">
+                <div className="bg-white/95 backdrop-blur-sm rounded-3xl shadow-2xl p-6 lg:p-8 border border-white/20">
+                  <div className="text-center mb-6 lg:mb-8">
+                    <div className="w-14 h-14 lg:w-16 lg:h-16 bg-gradient-to-br from-golf-green to-golf-lightgreen rounded-2xl flex items-center justify-center mx-auto mb-4 lg:mb-6 shadow-lg">
+                      <CameraIcon className="w-7 h-7 lg:w-8 lg:h-8 text-white" />
                     </div>
-                    <h2 className="text-3xl font-bold text-gray-800 mb-3">Start Tracking</h2>
-                    <p className="text-gray-600 text-lg">Sign in to analyze your shots</p>
+                    <h2 className="text-2xl lg:text-3xl font-bold text-gray-800 mb-2 lg:mb-3">Start Tracking</h2>
+                    <p className="text-gray-600 text-base lg:text-lg">Sign in to analyze your shots</p>
                   </div>
 
                   <button
                     onClick={onLogin}
-                    className="w-full bg-white border-2 border-gray-200 rounded-xl px-8 py-4 text-gray-700 font-semibold hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 flex items-center justify-center space-x-4 shadow-md hover:shadow-lg group"
+                    className="w-full bg-white border-2 border-gray-200 rounded-xl px-6 lg:px-8 py-4 lg:py-5 text-gray-700 font-semibold hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 flex items-center justify-center space-x-3 lg:space-x-4 shadow-md hover:shadow-lg group text-base lg:text-lg"
                   >
-                    <svg className="w-6 h-6" viewBox="0 0 24 24">
+                    <svg className="w-6 h-6 lg:w-7 lg:h-7 flex-shrink-0" viewBox="0 0 24 24">
                       <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                       <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
                       <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
                       <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
                     </svg>
-                    <span className="text-lg group-hover:text-golf-green transition-colors">Continue with Google</span>
+                    <span className="group-hover:text-golf-green transition-colors">Continue with Google</span>
                   </button>
 
                   <div className="mt-8 grid grid-cols-3 gap-4 text-center">
