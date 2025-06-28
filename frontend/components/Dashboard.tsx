@@ -3,7 +3,7 @@ import axios from 'axios'
 import toast from 'react-hot-toast'
 import { TrashIcon, ShareIcon, EyeIcon } from '@heroicons/react/24/outline'
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://golf-shot-transcription.onrender.com'
 
 interface Shot {
   id: number
