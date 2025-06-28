@@ -202,6 +202,15 @@ export default function Home() {
                 <div className="text-2xl mb-1">🏆</div>
                 <div className="text-sm">LEADERBOARD</div>
               </button>
+
+              {/* EMERGENCY LOGOUT BUTTON */}
+              <button
+                onClick={logout}
+                className="p-4 rounded-lg text-center transition-all transform hover:scale-105 font-bold bg-red-600 hover:bg-red-700 text-white border border-red-500"
+              >
+                <div className="text-2xl mb-1">🚪</div>
+                <div className="text-sm">LOGOUT</div>
+              </button>
             </div>
           </div>
         </nav>
