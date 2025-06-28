@@ -219,9 +219,9 @@ const ShotUpload: React.FC<ShotUploadProps> = ({ onShotAnalyzed }) => {
                     const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`
                     window.open(facebookUrl, '_blank')
                   }}
-                  className="px-4 py-3 bg-blue-700 text-white rounded-lg hover:bg-blue-800 transition-colors"
+                  className="px-4 py-3 bg-[#1877F2] text-white rounded-lg hover:bg-[#166FE5] transition-colors font-semibold"
                 >
-                  📘 Facebook
+                  Facebook
                 </button>
                 
                 <button
@@ -231,9 +231,9 @@ const ShotUpload: React.FC<ShotUploadProps> = ({ onShotAnalyzed }) => {
                     const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`
                     window.open(twitterUrl, '_blank')
                   }}
-                  className="px-4 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                  className="px-4 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors font-semibold"
                 >
-                  🐦 Twitter
+                  𝕏
                 </button>
                 
                 <button
@@ -242,9 +242,9 @@ const ShotUpload: React.FC<ShotUploadProps> = ({ onShotAnalyzed }) => {
                     navigator.clipboard.writeText(shareUrl)
                     toast.success('Share link copied to clipboard!')
                   }}
-                  className="px-4 py-3 bg-white bg-opacity-20 text-white rounded-lg hover:bg-opacity-30 transition-colors"
+                  className="px-4 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors font-semibold"
                 >
-                  📋 Copy
+                  Copy
                 </button>
               </div>
 
