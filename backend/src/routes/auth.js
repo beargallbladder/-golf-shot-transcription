@@ -175,6 +175,8 @@ router.post('/retailer/upgrade', requireJWT, async (req, res) => {
     }
 
     // Update user to retailer account type
+    const dailyLimit = plan === 'small_shop_basic' ? 100 : 999999;
+    
     await query(`
       UPDATE users 
       SET 
@@ -183,14 +185,10 @@ router.post('/retailer/upgrade', requireJWT, async (req, res) => {
         retailer_location = $3,
         subscription_plan = $4,
         subscription_status = $5,
-        daily_shot_limit = CASE 
-          WHEN $4 = 'small_shop_basic' THEN 100
-          WHEN $4 = 'small_shop_pro' THEN 999999
-          ELSE 999999
-        END,
+        daily_shot_limit = $6,
         updated_at = CURRENT_TIMESTAMP
-      WHERE id = $6
-    `, ['retailer', String(businessName || ''), String(location || ''), String(plan), 'pending', userId]);
+      WHERE id = $7
+    `, ['retailer', businessName || '', location || '', plan, 'pending', dailyLimit, userId]);
 
     console.log(`🎉 RETAILER UPGRADE: ${req.user.email} upgraded to ${plan}`);
 
