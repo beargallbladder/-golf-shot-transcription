@@ -6,6 +6,7 @@ import { CameraIcon, ChartBarIcon, TrophyIcon } from '@heroicons/react/24/outlin
 import ShotUpload from '../components/ShotUpload'
 import Dashboard from '../components/Dashboard'
 import Leaderboard from '../components/Leaderboard'
+import MyBag from '../components/MyBag'
 import GolfHero from '../components/GolfHero'
 import BeatMyBagLogo from '../components/BeatMyBagLogo'
 
@@ -184,6 +185,16 @@ export default function Home() {
               >
                 Leaderboard
               </button>
+              <button
+                onClick={() => setActiveTab('mybag')}
+                className={`py-4 px-2 border-b-2 font-medium text-sm transition-colors ${
+                  activeTab === 'mybag'
+                    ? 'border-golf-green text-golf-green'
+                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                🎒 My Bag
+              </button>
             </div>
           </div>
         </nav>
@@ -193,6 +204,7 @@ export default function Home() {
           {activeTab === 'upload' && <ShotUpload />}
           {activeTab === 'dashboard' && <Dashboard />}
           {activeTab === 'leaderboard' && <Leaderboard />}
+          {activeTab === 'mybag' && <MyBag />}
         </main>
       </div>
     </>

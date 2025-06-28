@@ -66,11 +66,26 @@ const ShotUpload: React.FC<ShotUploadProps> = ({ onShotAnalyzed }) => {
         imageBase64: base64
       })
 
-      const { shot } = response.data
+      const { shot, personalBest } = response.data
       setAnalyzedShot(shot)
       onShotAnalyzed?.(shot)
       
-      toast.success('Shot analyzed successfully!')
+      // Show personal best notification if applicable
+      if (personalBest?.isPersonalBest) {
+        if (personalBest.previousBest) {
+          toast.success(
+            `🔥 NEW PERSONAL BEST! ${personalBest.club}: ${personalBest.newBest} yards (+${personalBest.improvement} yards improvement!)`,
+            { duration: 6000 }
+          )
+        } else {
+          toast.success(
+            `🎉 FIRST ${personalBest.club.toUpperCase()} SHOT! ${personalBest.newBest} yards - now beat it!`,
+            { duration: 6000 }
+          )
+        }
+      } else {
+        toast.success('Shot analyzed successfully!')
+      }
     } catch (error: any) {
       console.error('Upload error:', error)
       toast.error(error.response?.data?.message || 'Failed to analyze shot')

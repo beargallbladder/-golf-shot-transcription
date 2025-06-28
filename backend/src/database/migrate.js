@@ -130,6 +130,33 @@ const createTablesNoExit = async () => {
     `);
     console.log('✅ Admin user configured');
 
+    // Create personal_bests table for "My Bag" tracking
+    await query(`
+      CREATE TABLE IF NOT EXISTS personal_bests (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        club VARCHAR(50) NOT NULL,
+        shot_id INTEGER REFERENCES shots(id) ON DELETE CASCADE,
+        distance INTEGER,
+        speed DECIMAL(5,1),
+        spin INTEGER,
+        launch_angle DECIMAL(4,1),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(user_id, club)
+      )
+    `);
+    console.log('✅ Personal bests table created');
+
+    // Create indexes for personal bests
+    await query(`
+      CREATE INDEX IF NOT EXISTS idx_personal_bests_user_id ON personal_bests(user_id);
+    `);
+    await query(`
+      CREATE INDEX IF NOT EXISTS idx_personal_bests_club ON personal_bests(club);
+    `);
+    console.log('✅ Personal bests indexes created');
+
   } catch (error) {
     console.error('❌ Migration failed:', error);
   }

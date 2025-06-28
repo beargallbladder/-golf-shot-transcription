@@ -3,6 +3,7 @@ const { body, validationResult } = require('express-validator');
 const { requireJWT } = require('../middleware/auth');
 const { analyzeShotImage } = require('../services/openai');
 const { query } = require('../database/db');
+const { checkAndUpdatePersonalBest, getUserBag, getBagStats } = require('../services/personalBests');
 
 const router = express.Router();
 
@@ -88,6 +89,16 @@ router.post('/', requireJWT, validateShotUpload, async (req, res) => {
 
     const savedShot = result.rows[0];
 
+    // Check for personal best
+    const personalBestResult = await checkAndUpdatePersonalBest(userId, {
+      id: savedShot.id,
+      club: savedShot.club,
+      distance: savedShot.distance,
+      speed: savedShot.speed,
+      spin: savedShot.spin,
+      launchAngle: savedShot.launch_angle
+    });
+
     // Return response with shot data and share URL
     res.status(201).json({
       shot: {
@@ -99,7 +110,8 @@ router.post('/', requireJWT, validateShotUpload, async (req, res) => {
         club: savedShot.club,
         createdAt: savedShot.created_at
       },
-      shareUrl: `/share/shot/${savedShot.id}`
+      shareUrl: `/share/shot/${savedShot.id}`,
+      personalBest: personalBestResult
     });
 
   } catch (error) {
@@ -306,6 +318,33 @@ router.delete('/:id', requireJWT, async (req, res) => {
     console.error('Delete shot error:', error);
     res.status(500).json({
       error: 'Failed to delete shot',
+      message: error.message
+    });
+  }
+});
+
+// GET /api/shots/my-bag - Get user's personal bag with best shots by club
+router.get('/my-bag', requireJWT, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    
+    const [bag, stats] = await Promise.all([
+      getUserBag(userId),
+      getBagStats(userId)
+    ]);
+
+    res.json({ 
+      bag,
+      stats,
+      message: stats.clubsWithData === 0 
+        ? "Start building your bag by uploading shots with different clubs!"
+        : `You've got ${stats.clubsWithData} clubs in your bag. ${stats.clubsRemaining} to go!`
+    });
+
+  } catch (error) {
+    console.error('Get my bag error:', error);
+    res.status(500).json({
+      error: 'Failed to fetch your bag',
       message: error.message
     });
   }
