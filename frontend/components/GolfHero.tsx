@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { CameraIcon, ChartBarIcon, TrophyIcon } from '@heroicons/react/24/outline'
+import BeatMyBagLogo from './BeatMyBagLogo'
 
 const golfImages = [
   '/images/golf/course-water.jpg', // Golf course with water reflection
@@ -56,13 +57,8 @@ const GolfHero: React.FC<GolfHeroProps> = ({ onLogin }) => {
             {/* Left Side - Hero Text */}
             <div className="text-white space-y-6 lg:space-y-8 text-center lg:text-left">
               <div className="space-y-4 lg:space-y-6">
-                <div className="flex items-center justify-center lg:justify-start space-x-3">
-                  <div className="w-12 h-12 lg:w-16 lg:h-16 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
-                    <span className="text-2xl lg:text-3xl">🏌️</span>
-                  </div>
-                  <div className="text-golf-sand font-bold text-lg lg:text-xl tracking-wide">
-                    BEATMYBAG.COM
-                  </div>
+                <div className="flex items-center justify-center lg:justify-start">
+                  <BeatMyBagLogo size="lg" className="text-white" />
                 </div>
                 
                 <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold leading-tight">
