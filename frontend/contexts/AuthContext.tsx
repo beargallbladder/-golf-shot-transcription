@@ -51,23 +51,37 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // Configure axios defaults and check for existing session
   useEffect(() => {
     const initializeAuth = async () => {
-      const storedToken = Cookies.get('auth_token')
-      if (storedToken) {
-        setToken(storedToken)
-        axios.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`
-        
-        try {
-          // Validate token and get user info
-          const response = await axios.get(`${API_URL}/auth/me`)
-          setUser(response.data.user)
-        } catch (error) {
-          // Token is invalid, clear it
-          Cookies.remove('auth_token')
-          setToken(null)
-          delete axios.defaults.headers.common['Authorization']
+      try {
+        const storedToken = Cookies.get('auth_token')
+        if (storedToken) {
+          setToken(storedToken)
+          axios.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`
+          
+          try {
+            // Validate token and get user info with timeout
+            const response = await Promise.race([
+              axios.get(`${API_URL}/auth/me`),
+              new Promise((_, reject) => 
+                setTimeout(() => reject(new Error('Auth timeout')), 10000)
+              )
+            ]) as any
+            setUser(response.data.user)
+          } catch (error) {
+            // Token is invalid, clear it
+            console.log('Token validation failed, clearing auth state:', error)
+            Cookies.remove('auth_token')
+            setToken(null)
+            delete axios.defaults.headers.common['Authorization']
+          }
+        } else {
+          // No token found, user is not logged in
+          console.log('No auth token found, user not logged in')
         }
+      } catch (error) {
+        console.error('Auth initialization error:', error)
+      } finally {
+        setLoading(false)
       }
-      setLoading(false)
     }
 
     initializeAuth()
