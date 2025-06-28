@@ -98,7 +98,7 @@ export default function Home() {
 
 
         {/* Header */}
-        <header className="bg-white shadow-sm border-b">
+        <header className="bg-white shadow-lg border-b-2 border-green-600">
           <div className="container mx-auto px-4 py-4 flex justify-between items-center">
             <button 
               onClick={() => setActiveTab('upload')}
@@ -108,23 +108,29 @@ export default function Home() {
             </button>
             
             <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
+              {/* User Info */}
+              <div className="flex items-center space-x-3 bg-gray-50 rounded-lg px-4 py-2">
                 {user.profilePicture && (
                   <Image
                     src={user.profilePicture}
                     alt={user.name}
-                    width={32}
-                    height={32}
-                    className="rounded-full"
+                    width={40}
+                    height={40}
+                    className="rounded-full border-2 border-green-600"
                   />
                 )}
-                <span className="text-gray-700 font-medium">{user.name}</span>
+                <div>
+                  <div className="text-gray-800 font-bold text-sm">{user.name}</div>
+                  <div className="text-gray-500 text-xs">Golfer</div>
+                </div>
               </div>
+              
+              {/* OBVIOUS LOGOUT BUTTON */}
               <button
                 onClick={logout}
-                className="text-gray-500 hover:text-gray-700 px-3 py-1 rounded-md hover:bg-gray-100 transition-colors"
+                className="bg-red-600 hover:bg-red-700 text-white font-bold px-4 py-2 rounded-lg transition-colors shadow-lg"
               >
-                Logout
+                LOGOUT
               </button>
             </div>
           </div>
