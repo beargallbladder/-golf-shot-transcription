@@ -140,7 +140,7 @@ const Leaderboard: React.FC = () => {
       <div className="bg-white rounded-xl shadow-lg p-6 relative overflow-hidden">
         {/* Golf Course Background */}
         <div 
-          className="absolute inset-0 opacity-5"
+          className="absolute inset-0 opacity-5 -z-10"
           style={{
             backgroundImage: 'url(/images/golf/B27AFE22-7DB3-4355-9938-75DBDDC2129A_1_105_c.jpeg)',
             backgroundSize: 'cover',

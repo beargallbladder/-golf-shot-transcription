@@ -101,14 +101,14 @@ const ShotUpload: React.FC<ShotUploadProps> = ({ onShotAnalyzed }) => {
       <div className="bg-white rounded-xl shadow-lg p-8 relative overflow-hidden">
         {/* Golf Course Background */}
         <div 
-          className="absolute inset-0 opacity-5"
+          className="absolute inset-0 opacity-5 -z-10"
           style={{
             backgroundImage: 'url(/images/golf/585AF507-959E-4DEB-80ED-29B39004DFCC_1_105_c.jpeg)',
             backgroundSize: 'cover',
             backgroundPosition: 'center',
           }}
         />
-        <div className="text-center mb-8 relative z-10">
+        <div className="text-center mb-8">
           <h2 className="text-3xl font-bold text-gray-800 mb-2">Upload Golf Shot</h2>
           <p className="text-gray-600">
             Take a photo or upload a screenshot of your golf simulator display
@@ -118,7 +118,7 @@ const ShotUpload: React.FC<ShotUploadProps> = ({ onShotAnalyzed }) => {
         {!analyzedShot && (
           <div
             {...getRootProps()}
-            className={`border-2 border-dashed rounded-xl p-12 text-center cursor-pointer transition-colors relative z-20 ${
+            className={`border-2 border-dashed rounded-xl p-12 text-center cursor-pointer transition-colors ${
               isDragActive
                 ? 'border-golf-green bg-golf-green bg-opacity-5'
                 : 'border-gray-300 hover:border-golf-green hover:bg-gray-50'
@@ -268,14 +268,15 @@ const ShotUpload: React.FC<ShotUploadProps> = ({ onShotAnalyzed }) => {
                 >
                   Upload Another Shot
                 </button>
-                <a
-                  href={`/share/shot/${analyzedShot.id}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <button
+                  onClick={() => {
+                    const sharePageUrl = `${window.location.origin}/share/shot/${analyzedShot.id}`
+                    window.open(sharePageUrl, '_blank')
+                  }}
                   className="px-6 py-3 bg-white text-golf-green rounded-lg hover:bg-gray-100 transition-colors font-semibold"
                 >
                   View Full Share Page
-                </a>
+                </button>
               </div>
             </div>
           </div>
