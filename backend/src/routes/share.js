@@ -35,10 +35,10 @@ router.get('/shot/:id', async (req, res) => {
     res.json({
       shot: {
         id: shot.id,
-        speed: shot.speed,
-        distance: shot.distance,
-        spin: shot.spin,
-        launchAngle: shot.launch_angle,
+        speed: shot.speed ? parseFloat(shot.speed) : null,
+        distance: shot.distance ? parseInt(shot.distance) : null,
+        spin: shot.spin ? parseInt(shot.spin) : null,
+        launchAngle: shot.launch_angle ? parseFloat(shot.launch_angle) : null,
         createdAt: shot.created_at,
         imageData: shot.image_data,
         user: {

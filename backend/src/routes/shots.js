@@ -86,10 +86,10 @@ router.post('/', requireJWT, validateShotUpload, async (req, res) => {
     res.status(201).json({
       shot: {
         id: savedShot.id,
-        speed: savedShot.speed,
-        distance: savedShot.distance,
-        spin: savedShot.spin,
-        launchAngle: savedShot.launch_angle,
+        speed: savedShot.speed ? parseFloat(savedShot.speed) : null,
+        distance: savedShot.distance ? parseInt(savedShot.distance) : null,
+        spin: savedShot.spin ? parseInt(savedShot.spin) : null,
+        launchAngle: savedShot.launch_angle ? parseFloat(savedShot.launch_angle) : null,
         createdAt: savedShot.created_at
       },
       shareUrl: `/share/shot/${savedShot.id}`
@@ -120,10 +120,10 @@ router.get('/me', requireJWT, async (req, res) => {
 
     const shots = result.rows.map(shot => ({
       id: shot.id,
-      speed: shot.speed,
-      distance: shot.distance,
-      spin: shot.spin,
-      launchAngle: shot.launch_angle,
+      speed: shot.speed ? parseFloat(shot.speed) : null,
+      distance: shot.distance ? parseInt(shot.distance) : null,
+      spin: shot.spin ? parseInt(shot.spin) : null,
+      launchAngle: shot.launch_angle ? parseFloat(shot.launch_angle) : null,
       createdAt: shot.created_at,
       isPublic: shot.is_public
     }));
@@ -175,11 +175,11 @@ router.get('/leaderboard', async (req, res) => {
 
     const leaderboard = result.rows.map(shot => ({
       id: shot.id,
-      value: shot.value,
-      speed: shot.speed,
-      distance: shot.distance,
-      spin: shot.spin,
-      launchAngle: shot.launch_angle,
+      value: shot.value ? parseFloat(shot.value) : null,
+      speed: shot.speed ? parseFloat(shot.speed) : null,
+      distance: shot.distance ? parseInt(shot.distance) : null,
+      spin: shot.spin ? parseInt(shot.spin) : null,
+      launchAngle: shot.launch_angle ? parseFloat(shot.launch_angle) : null,
       createdAt: shot.created_at,
       user: {
         name: shot.user_name,
