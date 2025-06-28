@@ -95,52 +95,7 @@ export default function Home() {
             backgroundAttachment: 'fixed',
           }}
         />
-        {/* Welcome Banner */}
-        {showWelcome && (
-          <div className="bg-gradient-to-r from-golf-green to-golf-lightgreen text-white">
-            <div className="container mx-auto px-4 py-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <span className="text-2xl">👋</span>
-                  <div>
-                    <p className="font-semibold">Welcome back, {user.name}!</p>
-                    <p className="text-sm opacity-90">
-                      Try the new <button 
-                        onClick={() => {setActiveTab('mybag'); setShowWelcome(false)}} 
-                        className="underline font-bold hover:bg-white hover:bg-opacity-20 px-2 py-1 rounded"
-                      >
-                        🎒 My Bag
-                      </button> feature!
-                    </p>
-                  </div>
-                </div>
-                <button
-                  onClick={() => setShowWelcome(false)}
-                  className="text-white hover:bg-white hover:bg-opacity-20 rounded-full p-1"
-                >
-                  ✕
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
 
-        {/* NEW FEATURE BANNER */}
-        <div className="bg-gradient-to-r from-orange-500 to-red-500 text-white">
-          <div className="container mx-auto px-4 py-2">
-            <div className="flex items-center justify-center space-x-2 text-sm">
-              <span className="animate-pulse">🚀</span>
-              <span className="font-bold">NEW FEATURE:</span>
-              <button 
-                onClick={() => setActiveTab('mybag')}
-                className="underline hover:bg-white hover:bg-opacity-20 px-2 py-1 rounded"
-              >
-                Track your personal bests with every club in your bag!
-              </button>
-              <span className="animate-pulse">🎒</span>
-            </div>
-          </div>
-        </div>
 
         {/* Header */}
         <header className="bg-white shadow-sm border-b">
@@ -175,92 +130,88 @@ export default function Home() {
           </div>
         </header>
 
-        {/* BIG OBVIOUS NAVIGATION BUTTONS */}
-        <nav className="bg-white border-b shadow-lg">
-          <div className="container mx-auto px-4 py-6">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {/* UPLOAD SHOT - PRIMARY ACTION */}
+        {/* BADASS GOLF NAVIGATION */}
+        <nav className="bg-gradient-to-r from-green-800 to-green-600 shadow-2xl">
+          <div className="container mx-auto px-4 py-4">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+              {/* UPLOAD SHOT - MAIN ACTION */}
               <button
                 onClick={() => setActiveTab('upload')}
-                className={`p-6 rounded-xl text-center transition-all transform hover:scale-105 ${
+                className={`p-4 rounded-lg text-center transition-all transform hover:scale-105 font-bold ${
                   activeTab === 'upload'
-                    ? 'bg-golf-green text-white shadow-xl'
-                    : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+                    ? 'bg-white text-green-800 shadow-xl border-2 border-yellow-400'
+                    : 'bg-green-700 hover:bg-green-600 text-white border border-green-500'
                 }`}
               >
-                <div className="text-3xl mb-2">📷</div>
-                <div className="font-bold text-lg">UPLOAD SHOT</div>
-                <div className="text-sm opacity-80">Analyze your golf shots</div>
+                <div className="text-2xl mb-1">🏌️</div>
+                <div className="text-sm">UPLOAD SHOT</div>
               </button>
 
-              {/* MY BAG - NEW FEATURE */}
+              {/* MY BAG - PERSONAL BESTS */}
               <button
                 onClick={() => setActiveTab('mybag')}
-                className={`p-6 rounded-xl text-center transition-all transform hover:scale-105 ${
+                className={`p-4 rounded-lg text-center transition-all transform hover:scale-105 font-bold relative ${
                   activeTab === 'mybag'
-                    ? 'bg-golf-green text-white shadow-xl'
-                    : 'bg-gradient-to-br from-yellow-100 to-orange-100 hover:from-yellow-200 hover:to-orange-200 text-gray-700 border-2 border-orange-300'
+                    ? 'bg-white text-green-800 shadow-xl border-2 border-yellow-400'
+                    : 'bg-gradient-to-br from-yellow-600 to-orange-600 hover:from-yellow-500 hover:to-orange-500 text-white border border-yellow-400'
                 }`}
               >
-                <div className="text-3xl mb-2">🎒</div>
-                <div className="font-bold text-lg">MY BAG</div>
-                <div className="text-sm opacity-80">Track personal bests</div>
-                <div className="text-xs mt-1 px-2 py-1 bg-orange-500 text-white rounded-full inline-block">NEW!</div>
+                <div className="text-2xl mb-1">🎒</div>
+                <div className="text-sm">MY BAG</div>
+                <div className="absolute -top-1 -right-1 bg-red-500 text-white text-xs px-1 rounded-full">NEW</div>
               </button>
 
-              {/* MY SHOTS */}
+              {/* MY SHOTS HISTORY */}
               <button
                 onClick={() => setActiveTab('dashboard')}
-                className={`p-6 rounded-xl text-center transition-all transform hover:scale-105 ${
+                className={`p-4 rounded-lg text-center transition-all transform hover:scale-105 font-bold ${
                   activeTab === 'dashboard'
-                    ? 'bg-golf-green text-white shadow-xl'
-                    : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+                    ? 'bg-white text-green-800 shadow-xl border-2 border-yellow-400'
+                    : 'bg-green-700 hover:bg-green-600 text-white border border-green-500'
                 }`}
               >
-                <div className="text-3xl mb-2">📊</div>
-                <div className="font-bold text-lg">MY SHOTS</div>
-                <div className="text-sm opacity-80">View all your shots</div>
+                <div className="text-2xl mb-1">📈</div>
+                <div className="text-sm">MY SHOTS</div>
               </button>
 
-              {/* LEADERBOARD */}
+              {/* LEADERBOARD COMPETITION */}
               <button
                 onClick={() => setActiveTab('leaderboard')}
-                className={`p-6 rounded-xl text-center transition-all transform hover:scale-105 ${
+                className={`p-4 rounded-lg text-center transition-all transform hover:scale-105 font-bold ${
                   activeTab === 'leaderboard'
-                    ? 'bg-golf-green text-white shadow-xl'
-                    : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+                    ? 'bg-white text-green-800 shadow-xl border-2 border-yellow-400'
+                    : 'bg-green-700 hover:bg-green-600 text-white border border-green-500'
                 }`}
               >
-                <div className="text-3xl mb-2">🏆</div>
-                <div className="font-bold text-lg">LEADERBOARD</div>
-                <div className="text-sm opacity-80">Compete with others</div>
+                <div className="text-2xl mb-1">🏆</div>
+                <div className="text-sm">LEADERBOARD</div>
               </button>
             </div>
           </div>
         </nav>
 
-        {/* CLEAR PAGE TITLE */}
-        <div className="bg-gradient-to-r from-golf-green to-golf-lightgreen text-white">
-          <div className="container mx-auto px-4 py-4">
+        {/* GOLF-FOCUSED PAGE HEADERS */}
+        <div className="bg-gradient-to-r from-green-900 to-green-700 text-white border-b-4 border-yellow-400">
+          <div className="container mx-auto px-4 py-3">
             <div className="flex items-center space-x-3">
-              <div className="text-2xl">
-                {activeTab === 'upload' && '📷'}
+              <div className="text-3xl">
+                {activeTab === 'upload' && '🏌️'}
                 {activeTab === 'mybag' && '🎒'}
-                {activeTab === 'dashboard' && '📊'}
+                {activeTab === 'dashboard' && '📈'}
                 {activeTab === 'leaderboard' && '🏆'}
               </div>
               <div>
-                <h1 className="text-2xl font-bold">
-                  {activeTab === 'upload' && 'Upload Golf Shot'}
-                  {activeTab === 'mybag' && 'My Bag - Personal Bests'}
-                  {activeTab === 'dashboard' && 'My Shots History'}
-                  {activeTab === 'leaderboard' && 'Global Leaderboard'}
+                <h1 className="text-xl font-bold tracking-wide">
+                  {activeTab === 'upload' && 'CRUSH YOUR NEXT SHOT'}
+                  {activeTab === 'mybag' && 'BEAT YOUR BAG'}
+                  {activeTab === 'dashboard' && 'YOUR GOLF HISTORY'}
+                  {activeTab === 'leaderboard' && 'WHO\'S THE BEST?'}
                 </h1>
-                <p className="text-sm opacity-90">
-                  {activeTab === 'upload' && 'Take a photo of your golf simulator and get instant AI analysis'}
-                  {activeTab === 'mybag' && 'Track your personal best shots with every club in your bag'}
-                  {activeTab === 'dashboard' && 'View and manage all your analyzed golf shots'}
-                  {activeTab === 'leaderboard' && 'See how you rank against other golfers worldwide'}
+                <p className="text-sm opacity-90 font-medium">
+                  {activeTab === 'upload' && 'Upload simulator shots • Get instant AI analysis • Track every yard'}
+                  {activeTab === 'mybag' && 'Personal bests with every club • Beat your records • Build your bag'}
+                  {activeTab === 'dashboard' && 'All your shots • Performance stats • Share your best drives'}
+                  {activeTab === 'leaderboard' && 'Global rankings • Compete with golfers worldwide • Claim the top spot'}
                 </p>
               </div>
             </div>
@@ -268,7 +219,7 @@ export default function Home() {
         </div>
 
         {/* Main Content */}
-        <main className="container mx-auto px-4 py-8">
+        <main className="container mx-auto px-4 py-6 relative z-10">
           {activeTab === 'upload' && <ShotUpload />}
           {activeTab === 'dashboard' && <Dashboard />}
           {activeTab === 'leaderboard' && <Leaderboard />}
