@@ -100,12 +100,22 @@ export default function Home() {
         {/* Header */}
         <header className="bg-white shadow-lg border-b-2 border-green-600">
           <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-            <button 
-              onClick={() => setActiveTab('upload')}
-              className="hover:opacity-80 transition-opacity"
-            >
-              <BeatMyBagLogo size="md" className="group-hover:text-golf-green transition-colors" />
-            </button>
+            <div className="flex items-center space-x-4">
+              <button 
+                onClick={() => setActiveTab('upload')}
+                className="hover:opacity-80 transition-opacity"
+              >
+                <BeatMyBagLogo size="md" className="group-hover:text-golf-green transition-colors" />
+              </button>
+              
+              {/* EMERGENCY LOGOUT - TEMPORARY */}
+              <button
+                onClick={logout}
+                className="bg-red-600 hover:bg-red-700 text-white font-bold px-3 py-1 rounded text-sm"
+              >
+                LOGOUT
+              </button>
+            </div>
             
             <div className="flex items-center space-x-4">
               {/* User Info */}
