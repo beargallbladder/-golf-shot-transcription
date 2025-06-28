@@ -12,7 +12,7 @@ process.env.GOOGLE_CLIENT_ID = HARDCODED_CLIENT_ID;
 passport.use(new GoogleStrategy({
   clientID: HARDCODED_CLIENT_ID,
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-  callbackURL: process.env.GOOGLE_CALLBACK_URL || '/auth/google/callback'
+  callbackURL: process.env.GOOGLE_CALLBACK_URL || 'https://golf-shot-transcription.onrender.com/auth/google/callback'
 }, async (accessToken, refreshToken, profile, done) => {
   try {
     console.log('🔐 OAuth callback received for user:', profile.displayName);
