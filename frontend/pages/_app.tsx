@@ -5,6 +5,7 @@ import Head from 'next/head'
 import { Toaster } from 'react-hot-toast'
 import { AuthProvider } from '../contexts/AuthContext'
 
+// Force deployment - retailer system v1.0
 export default function App({ Component, pageProps }: AppProps) {
   return (
     <>
