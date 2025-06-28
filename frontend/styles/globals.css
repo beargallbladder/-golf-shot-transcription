@@ -2,6 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --golf-green: #2d5016;
+  --golf-lightgreen: #4a7c23;
+  --golf-sand: #ddb892;
+  --golf-sky: #87ceeb;
+  --golf-ocean: #006994;
+  --golf-fairway: #228b22;
+}
+
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 html,
