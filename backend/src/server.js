@@ -8,7 +8,6 @@ const rateLimit = require('express-rate-limit');
 
 // Production-grade configuration
 const { validateEnvironment, config } = require('./config/environment');
-const { configureAxios } = require('./config/axios');
 const { runMigrations } = require('./config/migrations');
 
 // Import routes
@@ -126,9 +125,6 @@ const startServer = async () => {
   try {
     // Validate environment configuration
     validateEnvironment();
-    
-    // Configure axios interceptors
-    configureAxios();
     
     // Run production-grade migrations
     await runMigrations();
