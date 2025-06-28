@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
+import Cookies from 'js-cookie'
 import toast from 'react-hot-toast'
 import { CheckIcon, StarIcon, ArrowRightIcon } from '@heroicons/react/24/outline'
 
@@ -45,6 +46,13 @@ const RetailerUpgrade: React.FC<RetailerUpgradeProps> = ({ user, onUpgradeComple
   const fetchPricing = async () => {
     try {
       setLoading(true)
+      
+      // Ensure auth header is set
+      const token = Cookies.get('auth_token')
+      if (token) {
+        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
+      }
+      
       const response = await axios.get(`${API_URL}/auth/retailer/pricing`)
       setPlans(response.data.plans)
       // Auto-select recommended plan
@@ -52,9 +60,10 @@ const RetailerUpgrade: React.FC<RetailerUpgradeProps> = ({ user, onUpgradeComple
       if (recommended) {
         setSelectedPlan(recommended.id)
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Fetch pricing error:', error)
-      toast.error('Failed to load pricing plans')
+      const errorMessage = error.response?.data?.message || error.response?.data?.error || 'Failed to load pricing plans'
+      toast.error(errorMessage)
     } finally {
       setLoading(false)
     }
@@ -68,6 +77,16 @@ const RetailerUpgrade: React.FC<RetailerUpgradeProps> = ({ user, onUpgradeComple
 
     try {
       setUpgrading(true)
+      
+      // Ensure auth header is set
+      const token = Cookies.get('auth_token')
+      if (!token) {
+        toast.error('Please log in again to continue')
+        return
+      }
+      
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
+      
       const response = await axios.post(`${API_URL}/auth/retailer/upgrade`, {
         plan: selectedPlan,
         businessName: businessName.trim(),
@@ -78,7 +97,8 @@ const RetailerUpgrade: React.FC<RetailerUpgradeProps> = ({ user, onUpgradeComple
       onUpgradeComplete?.()
     } catch (error: any) {
       console.error('Upgrade error:', error)
-      toast.error(error.response?.data?.error || 'Failed to process upgrade')
+      const errorMessage = error.response?.data?.message || error.response?.data?.error || 'Failed to process upgrade'
+      toast.error(errorMessage)
     } finally {
       setUpgrading(false)
     }
