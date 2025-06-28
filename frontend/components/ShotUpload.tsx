@@ -212,7 +212,18 @@ const ShotUpload: React.FC<ShotUploadProps> = ({ onShotAnalyzed }) => {
               </div>
 
               {/* Quick Share Buttons */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <div className="grid grid-cols-3 gap-4">
+                <button
+                  onClick={() => {
+                    const shareUrl = `${window.location.origin}/share/shot/${analyzedShot.id}`
+                    const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`
+                    window.open(facebookUrl, '_blank')
+                  }}
+                  className="px-4 py-3 bg-blue-700 text-white rounded-lg hover:bg-blue-800 transition-colors"
+                >
+                  📘 Facebook
+                </button>
+                
                 <button
                   onClick={() => {
                     const shareUrl = `${window.location.origin}/share/shot/${analyzedShot.id}`
@@ -228,35 +239,12 @@ const ShotUpload: React.FC<ShotUploadProps> = ({ onShotAnalyzed }) => {
                 <button
                   onClick={() => {
                     const shareUrl = `${window.location.origin}/share/shot/${analyzedShot.id}`
-                    const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`
-                    window.open(facebookUrl, '_blank')
-                  }}
-                  className="px-4 py-3 bg-blue-700 text-white rounded-lg hover:bg-blue-800 transition-colors"
-                >
-                  📘 Facebook
-                </button>
-                
-                <button
-                  onClick={() => {
-                    const shareUrl = `${window.location.origin}/share/shot/${analyzedShot.id}`
-                    const shareText = `🔥 ${analyzedShot.distance} yards! Still pounding it! 💪`
-                    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText + ' ' + shareUrl)}`
-                    window.open(whatsappUrl, '_blank')
-                  }}
-                  className="px-4 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
-                >
-                  💬 WhatsApp
-                </button>
-                
-                <button
-                  onClick={() => {
-                    const shareUrl = `${window.location.origin}/share/shot/${analyzedShot.id}`
                     navigator.clipboard.writeText(shareUrl)
                     toast.success('Share link copied to clipboard!')
                   }}
                   className="px-4 py-3 bg-white bg-opacity-20 text-white rounded-lg hover:bg-opacity-30 transition-colors"
                 >
-                  📋 Copy Link
+                  📋 Copy
                 </button>
               </div>
 
