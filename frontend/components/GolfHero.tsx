@@ -3,13 +3,21 @@ import { CameraIcon, ChartBarIcon, TrophyIcon } from '@heroicons/react/24/outlin
 import BeatMyBagLogo from './BeatMyBagLogo'
 
 const golfImages = [
-  '/images/golf/course-water.jpg', // Golf course with water reflection
-  '/images/golf/course-bridge.jpg', // Golf course with wooden bridge  
-  '/images/golf/course-ocean.jpg', // Ocean golf course view
-  '/images/golf/course-fairway.jpg', // Beautiful golf fairway
-  '/images/golf/course-desert.jpg', // Desert golf course with mountains
-  '/images/golf/course-green.jpg', // Pristine putting green
-  '/images/golf/course-sunset.jpg', // Sunset golf course magic
+  '/images/golf/18E0CAA4-1912-436C-86C7-249F6047AC37_4_5005_c.jpeg',
+  '/images/golf/31D675F9-576D-43D6-BF84-47F457C33B5F_4_5005_c.jpeg',
+  '/images/golf/3BB27E62-317B-474D-9651-7FEF8FEAC6DC_1_105_c.jpeg',
+  '/images/golf/48C5C74D-0F5F-4FBD-B726-7A924B8DA35B_4_5005_c.jpeg',
+  '/images/golf/4F4B8402-2105-4F2B-A895-916A2F8120F2_4_5005_c.jpeg',
+  '/images/golf/585AF507-959E-4DEB-80ED-29B39004DFCC_1_105_c.jpeg',
+  '/images/golf/5B0A0D13-D013-492B-83B0-A351B46B18E6_4_5005_c.jpeg',
+  '/images/golf/5F781A8D-828D-4D7F-B8C2-56E5F72418E8_4_5005_c.jpeg',
+  '/images/golf/5F804175-F2E6-4036-9435-67F861DAD37E_1_105_c.jpeg',
+  '/images/golf/76F534ED-8988-48C0-8066-671544F3AB16_4_5005_c.jpeg',
+  '/images/golf/9B464EEB-BF5B-4B77-8277-FEC45E3D71B6_4_5005_c.jpeg',
+  '/images/golf/ABC2EC0F-EF76-4D11-B9FF-5D7CEEF3FCC1_4_5005_c.jpeg',
+  '/images/golf/B27AFE22-7DB3-4355-9938-75DBDDC2129A_1_105_c.jpeg',
+  '/images/golf/B9470A4B-2643-496F-8E46-B7DB87CF9DF2_4_5005_c.jpeg',
+  '/images/golf/FEC1ACC3-B981-4E95-BD54-98400E18ECA5.jpeg',
 ]
 
 interface GolfHeroProps {
