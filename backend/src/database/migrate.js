@@ -108,6 +108,21 @@ const createTablesNoExit = async () => {
     console.log('✅ Indexes created');
 
     console.log('🎉 Database migration completed successfully!');
+    // Add admin column to users table (safe if already exists)
+    await query(`
+      ALTER TABLE users 
+      ADD COLUMN IF NOT EXISTS is_admin BOOLEAN DEFAULT false;
+    `);
+    console.log('✅ Admin column added');
+
+    // Set samkim@samkim.com as admin
+    await query(`
+      UPDATE users 
+      SET is_admin = true 
+      WHERE email = 'samkim@samkim.com';
+    `);
+    console.log('✅ Admin user configured');
+
   } catch (error) {
     console.error('❌ Migration failed:', error);
   }

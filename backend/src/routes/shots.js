@@ -30,7 +30,11 @@ router.post('/', requireJWT, validateShotUpload, async (req, res) => {
     const { imageBase64 } = req.body;
     const userId = req.user.id;
 
-    // Check daily shot limit (10 shots per day)
+    // Skip daily limit for admin users
+    if (req.user.is_admin) {
+      console.log('🔑 Admin user detected - skipping daily limit');
+    } else {
+      // Check daily shot limit (10 shots per day)
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const tomorrow = new Date(today);
@@ -46,14 +50,15 @@ router.post('/', requireJWT, validateShotUpload, async (req, res) => {
 
     const shotsToday = parseInt(dailyCount.rows[0].count);
     
-    if (shotsToday >= 10) {
-      return res.status(429).json({
-        error: 'Daily limit reached',
-        message: 'You have reached your daily limit of 10 shot analyses. Try again tomorrow or upgrade to premium for unlimited shots.',
-        shotsUsed: shotsToday,
-        dailyLimit: 10,
-        resetTime: tomorrow.toISOString()
-      });
+      if (shotsToday >= 10) {
+        return res.status(429).json({
+          error: 'Daily limit reached',
+          message: 'You have reached your daily limit of 10 shot analyses. Try again tomorrow or upgrade to premium for unlimited shots.',
+          shotsUsed: shotsToday,
+          dailyLimit: 10,
+          resetTime: tomorrow.toISOString()
+        });
+      }
     }
 
     // Analyze image with AI - NO FAKE DATA EVER
