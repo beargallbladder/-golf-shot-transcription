@@ -2,21 +2,12 @@ const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const { query } = require('../database/db');
 
-const HARDCODED_CLIENT_ID = '30109835375-vqi79va1m9gdug0c9e9q9j4cvm5e93d1.apps.googleusercontent.com';
-console.log('🔥 PASSPORT CONFIG: Using hardcoded client ID:', HARDCODED_CLIENT_ID);
-console.log('🔥 PASSPORT CONFIG: Environment client ID:', process.env.GOOGLE_CLIENT_ID);
-
-// FORCE the correct client ID by overriding environment
-process.env.GOOGLE_CLIENT_ID = HARDCODED_CLIENT_ID;
-
 passport.use(new GoogleStrategy({
-  clientID: HARDCODED_CLIENT_ID,
+  clientID: process.env.GOOGLE_CLIENT_ID,
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
   callbackURL: process.env.GOOGLE_CALLBACK_URL || 'https://golf-shot-transcription.onrender.com/auth/google/callback'
 }, async (accessToken, refreshToken, profile, done) => {
   try {
-    console.log('🔐 OAuth callback received for user:', profile.displayName);
-    
     // Check if user already exists
     const existingUser = await query(
       'SELECT * FROM users WHERE google_id = $1',
@@ -24,13 +15,10 @@ passport.use(new GoogleStrategy({
     );
 
     if (existingUser.rows.length > 0) {
-      console.log('✅ Existing user found:', existingUser.rows[0].email);
       return done(null, existingUser.rows[0]);
     }
 
-    console.log('🆕 Creating new user:', profile.emails[0].value);
-    
-    // Create new user with better error handling
+    // Create new user
     const newUser = await query(`
       INSERT INTO users (google_id, email, name, profile_picture)
       VALUES ($1, $2, $3, $4)
@@ -42,15 +30,9 @@ passport.use(new GoogleStrategy({
       profile.photos && profile.photos[0] ? profile.photos[0].value : null
     ]);
 
-    console.log('✅ New user created:', newUser.rows[0].email);
     return done(null, newUser.rows[0]);
   } catch (error) {
-    console.error('❌ Error in Google OAuth strategy:', error);
-    console.error('Profile data:', {
-      id: profile.id,
-      email: profile.emails?.[0]?.value,
-      name: profile.displayName
-    });
+    console.error('❌ OAuth authentication error:', error);
     return done(error, null);
   }
 }));
@@ -72,4 +54,6 @@ passport.deserializeUser(async (id, done) => {
   } catch (error) {
     done(error, null);
   }
-}); 
+});
+
+module.exports = passport; 

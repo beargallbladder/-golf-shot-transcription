@@ -10,6 +10,7 @@ import MyBag from '../components/MyBag'
 import RetailerUpgrade from '../components/RetailerUpgrade'
 import GolfHero from '../components/GolfHero'
 import BeatMyBagLogo from '../components/BeatMyBagLogo'
+import LoadingSpinner from '../components/LoadingSpinner'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://golf-shot-transcription.onrender.com'
 
@@ -41,13 +42,10 @@ export default function Home() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-16 h-16 mx-auto bg-golf-green rounded-full flex items-center justify-center mb-4">
-            <div className="w-8 h-8 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
-          </div>
-          <h2 className="text-xl font-semibold text-gray-800 mb-2">Loading...</h2>
-          <p className="text-gray-600">Getting your golf data ready</p>
-        </div>
+        <LoadingSpinner 
+          size="lg" 
+          text="Getting your golf data ready..."
+        />
       </div>
     )
   }
@@ -79,8 +77,8 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>Golf Shot Transcription - Dashboard</title>
-        <meta name="description" content="Your golf shot analysis dashboard" />
+        <title>Beat My Bag - Golf Dashboard</title>
+        <meta name="description" content="Your AI-powered golf shot analysis dashboard" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
@@ -97,7 +95,6 @@ export default function Home() {
           }}
         />
 
-
         {/* Header */}
         <header className="bg-white shadow-lg border-b-2 border-green-600">
           <div className="container mx-auto px-4 py-4 flex justify-between items-center">
@@ -107,14 +104,6 @@ export default function Home() {
                 className="hover:opacity-80 transition-opacity"
               >
                 <BeatMyBagLogo size="md" className="group-hover:text-golf-green transition-colors" />
-              </button>
-              
-              {/* EMERGENCY LOGOUT - TEMPORARY */}
-              <button
-                onClick={logout}
-                className="bg-red-600 hover:bg-red-700 text-white font-bold px-3 py-1 rounded text-sm"
-              >
-                LOGOUT
               </button>
             </div>
             
@@ -132,22 +121,25 @@ export default function Home() {
                 )}
                 <div>
                   <div className="text-gray-800 font-bold text-sm">{user.name}</div>
-                  <div className="text-gray-500 text-xs">Golfer</div>
+                  <div className="text-gray-500 text-xs">
+                    {user.accountType === 'retailer' ? 'Golf Professional' : 'Golfer'}
+                  </div>
                 </div>
               </div>
               
-              {/* OBVIOUS LOGOUT BUTTON */}
+              {/* Professional Logout Button */}
               <button
                 onClick={logout}
-                className="bg-red-600 hover:bg-red-700 text-white font-bold px-4 py-2 rounded-lg transition-colors shadow-lg"
+                className="bg-gray-600 hover:bg-gray-700 text-white font-medium px-4 py-2 rounded-lg transition-colors shadow-sm text-sm"
+                title="Sign out"
               >
-                LOGOUT
+                Sign Out
               </button>
             </div>
           </div>
         </header>
 
-        {/* BADASS GOLF NAVIGATION */}
+        {/* Navigation */}
         <nav className="bg-gradient-to-r from-green-800 to-green-600 shadow-2xl">
           <div className="container mx-auto px-4 py-4">
             <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
@@ -228,7 +220,7 @@ export default function Home() {
           </div>
         </nav>
 
-        {/* GOLF-FOCUSED PAGE HEADERS */}
+        {/* Page Headers */}
         <div className="bg-gradient-to-r from-green-900 to-green-700 text-white border-b-4 border-yellow-400">
           <div className="container mx-auto px-4 py-3">
             <div className="flex items-center space-x-3">

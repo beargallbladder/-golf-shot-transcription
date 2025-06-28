@@ -3,6 +3,7 @@ import { useDropzone } from 'react-dropzone'
 import axios from 'axios'
 import toast from 'react-hot-toast'
 import { CameraIcon, PhotoIcon, ArrowUpTrayIcon } from '@heroicons/react/24/outline'
+import LoadingSpinner from './LoadingSpinner'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://golf-shot-transcription.onrender.com'
 
@@ -36,6 +37,47 @@ const ShotUpload: React.FC<ShotUploadProps> = ({ onShotAnalyzed }) => {
     })
   }
 
+  // Compress image before upload
+  const compressImage = (file: File): Promise<File> => {
+    return new Promise((resolve) => {
+      const canvas = document.createElement('canvas')
+      const ctx = canvas.getContext('2d')
+      const img = new Image()
+      
+      img.onload = () => {
+        // Calculate new dimensions (max 1920x1080)
+        const maxWidth = 1920
+        const maxHeight = 1080
+        let { width, height } = img
+        
+        if (width > maxWidth || height > maxHeight) {
+          const ratio = Math.min(maxWidth / width, maxHeight / height)
+          width *= ratio
+          height *= ratio
+        }
+        
+        canvas.width = width
+        canvas.height = height
+        
+        // Draw and compress
+        ctx?.drawImage(img, 0, 0, width, height)
+        canvas.toBlob((blob) => {
+          if (blob) {
+            const compressedFile = new File([blob], file.name, {
+              type: 'image/jpeg',
+              lastModified: Date.now()
+            })
+            resolve(compressedFile)
+          } else {
+            resolve(file) // Fallback to original
+          }
+        }, 'image/jpeg', 0.8) // 80% quality
+      }
+      
+      img.src = URL.createObjectURL(file)
+    })
+  }
+
   const handleFileUpload = async (files: File[]) => {
     if (files.length === 0) return
 
@@ -43,13 +85,13 @@ const ShotUpload: React.FC<ShotUploadProps> = ({ onShotAnalyzed }) => {
     
     // Validate file type
     if (!file.type.startsWith('image/')) {
-      toast.error('Please upload an image file')
+      toast.error('Please upload an image file (JPG, PNG, WebP)')
       return
     }
 
-    // Validate file size (max 10MB)
-    if (file.size > 10 * 1024 * 1024) {
-      toast.error('Image size must be less than 10MB')
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image size must be less than 5MB')
       return
     }
 
@@ -57,8 +99,11 @@ const ShotUpload: React.FC<ShotUploadProps> = ({ onShotAnalyzed }) => {
       setIsAnalyzing(true)
       setAnalyzedShot(null)
 
+      // Compress image for better performance
+      const compressedFile = await compressImage(file)
+      
       // Convert to base64
-      const base64 = await convertToBase64(file)
+      const base64 = await convertToBase64(compressedFile)
       setUploadedImage(base64)
 
       // Send to backend for analysis
@@ -87,8 +132,19 @@ const ShotUpload: React.FC<ShotUploadProps> = ({ onShotAnalyzed }) => {
         toast.success('Shot analyzed successfully!')
       }
     } catch (error: any) {
-      console.error('Upload error:', error)
-      toast.error(error.response?.data?.message || 'Failed to analyze shot')
+      const errorMessage = error.response?.data?.message || 'Failed to analyze shot. Please try again.'
+      toast.error(errorMessage)
+      
+      // Handle rate limiting gracefully
+      if (error.response?.status === 429) {
+        const resetTime = error.response?.data?.resetTime
+        if (resetTime) {
+          const resetDate = new Date(resetTime)
+          toast.error(`Daily limit reached. Resets at ${resetDate.toLocaleTimeString()}`, {
+            duration: 8000
+          })
+        }
+      }
     } finally {
       setIsAnalyzing(false)
     }
@@ -142,15 +198,10 @@ const ShotUpload: React.FC<ShotUploadProps> = ({ onShotAnalyzed }) => {
             <input {...getInputProps()} />
             
             {isAnalyzing ? (
-              <div className="space-y-4">
-                <div className="w-16 h-16 mx-auto bg-golf-green rounded-full flex items-center justify-center">
-                  <div className="w-8 h-8 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
-                </div>
-                <div>
-                  <h3 className="text-xl font-semibold text-gray-800 mb-2">Analyzing Shot...</h3>
-                  <p className="text-gray-600">AI is extracting shot data from your image</p>
-                </div>
-              </div>
+              <LoadingSpinner 
+                size="lg" 
+                text="AI is analyzing your shot..."
+              />
             ) : (
               <div className="space-y-4">
                 <div className="w-16 h-16 mx-auto bg-golf-green rounded-full flex items-center justify-center">
@@ -174,6 +225,9 @@ const ShotUpload: React.FC<ShotUploadProps> = ({ onShotAnalyzed }) => {
                     <span>•</span>
                     <span>📁 File Upload</span>
                   </div>
+                  <p className="text-xs text-gray-400 mt-3">
+                    Max file size: 5MB • Supports JPG, PNG, WebP
+                  </p>
                 </div>
               </div>
             )}
@@ -301,4 +355,4 @@ const ShotUpload: React.FC<ShotUploadProps> = ({ onShotAnalyzed }) => {
   )
 }
 
-export default ShotUpload 
+export default ShotUpload

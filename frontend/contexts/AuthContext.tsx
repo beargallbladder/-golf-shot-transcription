@@ -58,13 +58,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         
         try {
           // Validate token and get user info
-          console.log('🔄 Validating existing session...')
           const response = await axios.get(`${API_URL}/auth/me`)
-          console.log('✅ Session valid, user:', response.data.user.name)
           setUser(response.data.user)
-          // Don't show success toast for existing sessions
         } catch (error) {
-          console.log('❌ Token invalid, clearing session')
           // Token is invalid, clear it
           Cookies.remove('auth_token')
           setToken(null)
@@ -79,15 +75,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const login = async (newToken: string, showWelcome: boolean = true) => {
     try {
-      console.log('🔄 Logging in with token...')
       setToken(newToken)
       Cookies.set('auth_token', newToken, { expires: 7 }) // 7 days
       axios.defaults.headers.common['Authorization'] = `Bearer ${newToken}`
       
       // Fetch user info
-      console.log('🔄 Fetching user info from:', `${API_URL}/auth/me`)
       const response = await axios.get(`${API_URL}/auth/me`)
-      console.log('✅ User info received:', response.data.user)
       setUser(response.data.user)
       
       // Only show welcome message for new logins, not session restoration
@@ -98,9 +91,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         })
       }
     } catch (error: any) {
-      console.error('❌ Login error:', error)
-      console.error('Error response:', error.response?.data)
-      toast.error(`Failed to fetch user information: ${error.response?.data?.error || error.message}`)
+      console.error('Login error:', error)
+      toast.error('Failed to sign in. Please try again.')
       logout()
     }
   }

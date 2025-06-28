@@ -297,22 +297,4 @@ router.post('/token', (req, res) => {
   res.json({ token });
 });
 
-// Debug endpoint to check environment variables
-router.get('/debug/env', (req, res) => {
-  res.json({
-    hasGoogleClientId: !!process.env.GOOGLE_CLIENT_ID,
-    hasGoogleClientSecret: !!process.env.GOOGLE_CLIENT_SECRET,
-    hasJwtSecret: !!process.env.JWT_SECRET,
-    hasSessionSecret: !!process.env.SESSION_SECRET,
-    frontendUrl: process.env.FRONTEND_URL,
-    nodeEnv: process.env.NODE_ENV,
-    // Show actual client ID (last 15 chars for debugging)
-    clientIdSuffix: process.env.GOOGLE_CLIENT_ID ? process.env.GOOGLE_CLIENT_ID.slice(-15) : 'NOT_SET',
-    // Show first 15 chars too
-    clientIdPrefix: process.env.GOOGLE_CLIENT_ID ? process.env.GOOGLE_CLIENT_ID.slice(0, 15) : 'NOT_SET'
-  });
-});
-
-
-
 module.exports = router; 

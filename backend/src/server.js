@@ -66,7 +66,11 @@ app.use(passport.session());
 
 // Health check endpoint
 app.get('/health', (req, res) => {
-  res.json({ status: 'OK', timestamp: new Date().toISOString() });
+  res.json({ 
+    status: 'healthy', 
+    timestamp: new Date().toISOString(),
+    version: '1.0.0'
+  });
 });
 
 // Simple root endpoint for Render port detection
@@ -82,23 +86,6 @@ app.get('/', (req, res) => {
 // Favicon route to prevent 404 errors
 app.get('/favicon.ico', (req, res) => {
   res.status(204).end();
-});
-
-// Debug route to check environment variables (remove in production)
-app.get('/debug/env', (req, res) => {
-  res.json({
-    hasGoogleClientId: !!process.env.GOOGLE_CLIENT_ID,
-    hasGoogleClientSecret: !!process.env.GOOGLE_CLIENT_SECRET,
-    hasJwtSecret: !!process.env.JWT_SECRET,
-    hasSessionSecret: !!process.env.SESSION_SECRET,
-    frontendUrl: process.env.FRONTEND_URL,
-    nodeEnv: process.env.NODE_ENV,
-    // Show actual client ID parts for debugging
-    clientIdSuffix: process.env.GOOGLE_CLIENT_ID ? process.env.GOOGLE_CLIENT_ID.slice(-15) : 'NOT_SET',
-    clientIdPrefix: process.env.GOOGLE_CLIENT_ID ? process.env.GOOGLE_CLIENT_ID.slice(0, 15) : 'NOT_SET',
-    // Show the EXACT client ID being used (temporarily for debugging)
-    actualClientId: '30109835375-vqi79va1m9gdug0c9e9q9j4cvm5e93d1.apps.googleusercontent.com'
-  });
 });
 
 // Routes
