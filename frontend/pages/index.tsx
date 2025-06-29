@@ -2,14 +2,9 @@ import React, { useState, useEffect } from 'react'
 import Head from 'next/head'
 import Image from 'next/image'
 import { useAuth } from '../contexts/AuthContext'
-import { CameraIcon, ChartBarIcon, TrophyIcon } from '@heroicons/react/24/outline'
 import ShotUpload from '../components/ShotUpload'
 import Dashboard from '../components/Dashboard'
 import Leaderboard from '../components/Leaderboard'
-import MyBag from '../components/MyBag'
-import RetailerUpgrade from '../components/RetailerUpgrade'
-import GolfHero from '../components/GolfHero'
-import BeatMyBagLogo from '../components/BeatMyBagLogo'
 import LoadingSpinner from '../components/LoadingSpinner'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://golf-shot-transcription.onrender.com'
@@ -17,22 +12,6 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://golf-shot-transcript
 export default function Home() {
   const { user, loading, logout } = useAuth()
   const [activeTab, setActiveTab] = useState('upload')
-  const [showWelcome, setShowWelcome] = useState(false)
-
-  // Show welcome message for returning users
-  useEffect(() => {
-    if (user && !loading) {
-      const lastVisit = localStorage.getItem('lastVisit')
-      const now = Date.now()
-      const oneHour = 60 * 60 * 1000
-
-      if (!lastVisit || (now - parseInt(lastVisit)) > oneHour) {
-        setShowWelcome(true)
-        setTimeout(() => setShowWelcome(false), 5000) // Hide after 5 seconds
-      }
-      localStorage.setItem('lastVisit', now.toString())
-    }
-  }, [user, loading])
 
   const handleGoogleLogin = () => {
     window.location.href = `${API_URL}/auth/google`
@@ -44,67 +23,64 @@ export default function Home() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <LoadingSpinner 
           size="lg" 
-          text="Getting your golf data ready..."
+          text="Loading Beat My Bag..."
         />
       </div>
     )
   }
 
+  // Show login page if not authenticated
   if (!user) {
     return (
       <>
         <Head>
-          <title>Beat My Bag - AI-Powered Golf Shot Analysis</title>
-          <meta name="description" content="Transform your golf simulator screenshots into detailed performance insights. Track every yard, beat your friends, and improve your game with AI-powered analysis." />
+          <title>Beat My Bag - AI Golf Shot Analyzer</title>
+          <meta name="description" content="Analyze your golf shots with AI" />
           <meta name="viewport" content="width=device-width, initial-scale=1" />
           <link rel="icon" href="/favicon.ico" />
-          
-          {/* Golf-themed meta tags */}
-          <meta property="og:title" content="Beat My Bag - Track Every Yard" />
-          <meta property="og:description" content="AI-powered golf shot analysis. Upload screenshots, get instant insights, beat your friends!" />
-          <meta property="og:type" content="website" />
-          <meta property="og:url" content="https://www.beatmybag.com" />
-          <meta name="twitter:card" content="summary_large_image" />
-          <meta name="twitter:title" content="Beat My Bag - Track Every Yard" />
-          <meta name="twitter:description" content="AI-powered golf shot analysis. Upload screenshots, get instant insights!" />
         </Head>
 
-        <GolfHero onLogin={handleGoogleLogin} />
+        <div className="min-h-screen bg-gradient-to-br from-green-50 to-green-100">
+          <div className="container mx-auto px-4 py-16">
+            <div className="text-center mb-12">
+              <h1 className="text-6xl font-bold text-green-800 mb-4">🏌️‍♂️ Beat My Bag</h1>
+              <p className="text-xl text-gray-600 mb-8">AI-powered golf shot analysis</p>
+              
+              <button
+                onClick={handleGoogleLogin}
+                className="bg-white border-2 border-gray-200 rounded-xl px-8 py-4 text-gray-700 font-semibold hover:bg-gray-50 transition-all duration-200 flex items-center justify-center space-x-4 shadow-lg hover:shadow-xl mx-auto"
+              >
+                <svg className="w-6 h-6" viewBox="0 0 24 24">
+                  <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                  <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                  <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                  <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                </svg>
+                <span>Continue with Google</span>
+              </button>
+            </div>
+          </div>
+        </div>
       </>
     )
   }
 
+  // Main app for authenticated users
   return (
     <>
       <Head>
-        <title>Beat My Bag - Golf Dashboard</title>
-        <meta name="description" content="Your AI-powered golf shot analysis dashboard" />
+        <title>Beat My Bag - Golf Shot Analyzer</title>
+        <meta name="description" content="AI-powered golf shot analysis" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <div className="min-h-screen bg-gray-50 relative">
-        {/* Subtle Golf Course Background */}
-        <div 
-          className="fixed inset-0 opacity-3"
-          style={{
-            backgroundImage: 'url(/images/golf/3BB27E62-317B-474D-9651-7FEF8FEAC6DC_1_105_c.jpeg)',
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            backgroundAttachment: 'fixed',
-          }}
-        />
-
+      <div className="min-h-screen bg-gray-50">
         {/* Header */}
-        <header className="bg-white shadow-lg border-b-2 border-green-600">
+        <header className="bg-white shadow-sm border-b">
           <div className="container mx-auto px-4 py-4 flex justify-between items-center">
             <div className="flex items-center space-x-4">
-              <button 
-                onClick={() => setActiveTab('upload')}
-                className="hover:opacity-80 transition-opacity"
-              >
-                <BeatMyBagLogo size="md" className="group-hover:text-golf-green transition-colors" />
-              </button>
+              <h1 className="text-2xl font-bold text-green-800">🏌️‍♂️ Beat My Bag</h1>
             </div>
             
             <div className="flex items-center space-x-4">
@@ -121,17 +97,14 @@ export default function Home() {
                 )}
                 <div>
                   <div className="text-gray-800 font-bold text-sm">{user.name}</div>
-                  <div className="text-gray-500 text-xs">
-                    {user.accountType === 'retailer' ? 'Golf Professional' : 'Golfer'}
-                  </div>
+                  <div className="text-gray-500 text-xs">Golfer</div>
                 </div>
               </div>
               
-              {/* Professional Logout Button */}
+              {/* Sign Out Button */}
               <button
                 onClick={logout}
                 className="bg-gray-600 hover:bg-gray-700 text-white font-medium px-4 py-2 rounded-lg transition-colors shadow-sm text-sm"
-                title="Sign out"
               >
                 Sign Out
               </button>
@@ -140,10 +113,10 @@ export default function Home() {
         </header>
 
         {/* Navigation */}
-        <nav className="bg-gradient-to-r from-green-800 to-green-600 shadow-2xl">
+        <nav className="bg-green-800 shadow-lg">
           <div className="container mx-auto px-4 py-4">
-            <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
-              {/* UPLOAD SHOT - MAIN ACTION */}
+            <div className="grid grid-cols-3 gap-4 max-w-2xl mx-auto">
+              {/* UPLOAD SHOT */}
               <button
                 onClick={() => setActiveTab('upload')}
                 className={`p-4 rounded-lg text-center transition-all transform hover:scale-105 font-bold ${
@@ -152,25 +125,11 @@ export default function Home() {
                     : 'bg-green-700 hover:bg-green-600 text-white border border-green-500'
                 }`}
               >
-                <div className="text-2xl mb-1">🏌️</div>
+                <div className="text-2xl mb-1">📸</div>
                 <div className="text-sm">UPLOAD SHOT</div>
               </button>
 
-              {/* MY BAG - PERSONAL BESTS */}
-              <button
-                onClick={() => setActiveTab('mybag')}
-                className={`p-4 rounded-lg text-center transition-all transform hover:scale-105 font-bold relative ${
-                  activeTab === 'mybag'
-                    ? 'bg-white text-green-800 shadow-xl border-2 border-yellow-400'
-                    : 'bg-gradient-to-br from-yellow-600 to-orange-600 hover:from-yellow-500 hover:to-orange-500 text-white border border-yellow-400'
-                }`}
-              >
-                <div className="text-2xl mb-1">🎒</div>
-                <div className="text-sm">MY BAG</div>
-                <div className="absolute -top-1 -right-1 bg-red-500 text-white text-xs px-1 rounded-full">NEW</div>
-              </button>
-
-              {/* MY SHOTS HISTORY */}
+              {/* MY SHOTS */}
               <button
                 onClick={() => setActiveTab('dashboard')}
                 className={`p-4 rounded-lg text-center transition-all transform hover:scale-105 font-bold ${
@@ -183,7 +142,7 @@ export default function Home() {
                 <div className="text-sm">MY SHOTS</div>
               </button>
 
-              {/* LEADERBOARD COMPETITION */}
+              {/* LEADERBOARD */}
               <button
                 onClick={() => setActiveTab('leaderboard')}
                 className={`p-4 rounded-lg text-center transition-all transform hover:scale-105 font-bold ${
@@ -195,69 +154,15 @@ export default function Home() {
                 <div className="text-2xl mb-1">🏆</div>
                 <div className="text-sm">LEADERBOARD</div>
               </button>
-
-              {/* RETAILER UPGRADE - BUSINESS FEATURES */}
-              {user && user.accountType !== 'retailer' && (
-                user.email === 'samkim@samkim.com' || 
-                user.email === 'info@fairwaygolfusa.com' ||
-                user.email === 'sales@fairwaygolfusa.com' ||
-                user.email === 'custom@fairwaygolfusa.com'
-              ) && (
-                <button
-                  onClick={() => setActiveTab('retailer')}
-                  className={`p-4 rounded-lg text-center transition-all transform hover:scale-105 font-bold relative ${
-                    activeTab === 'retailer'
-                      ? 'bg-white text-green-800 shadow-xl border-2 border-yellow-400'
-                      : 'bg-gradient-to-br from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white border border-purple-400'
-                  }`}
-                >
-                  <div className="text-2xl mb-1">🏪</div>
-                  <div className="text-sm">RETAILER</div>
-                  <div className="absolute -top-1 -right-1 bg-yellow-500 text-black text-xs px-1 rounded-full">PRO</div>
-                </button>
-              )}
             </div>
           </div>
         </nav>
 
-        {/* Page Headers */}
-        <div className="bg-gradient-to-r from-green-900 to-green-700 text-white border-b-4 border-yellow-400">
-          <div className="container mx-auto px-4 py-3">
-            <div className="flex items-center space-x-3">
-              <div className="text-3xl">
-                {activeTab === 'upload' && '🏌️'}
-                {activeTab === 'mybag' && '🎒'}
-                {activeTab === 'dashboard' && '📈'}
-                {activeTab === 'leaderboard' && '🏆'}
-                {activeTab === 'retailer' && '🏪'}
-              </div>
-              <div>
-                <h1 className="text-xl font-bold tracking-wide">
-                  {activeTab === 'upload' && 'CRUSH YOUR NEXT SHOT'}
-                  {activeTab === 'mybag' && 'BEAT YOUR BAG'}
-                  {activeTab === 'dashboard' && 'YOUR GOLF HISTORY'}
-                  {activeTab === 'leaderboard' && 'WHO\'S THE BEST?'}
-                  {activeTab === 'retailer' && 'UPGRADE TO RETAILER'}
-                </h1>
-                <p className="text-sm opacity-90 font-medium">
-                  {activeTab === 'upload' && 'Upload simulator shots • Get instant AI analysis • Track every yard'}
-                  {activeTab === 'mybag' && 'Personal bests with every club • Beat your records • Build your bag'}
-                  {activeTab === 'dashboard' && 'All your shots • Performance stats • Share your best drives'}
-                  {activeTab === 'leaderboard' && 'Global rankings • Compete with golfers worldwide • Claim the top spot'}
-                  {activeTab === 'retailer' && 'Enhanced AI transcription • Customer lead capture • Professional fitting tools'}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
         {/* Main Content */}
-        <main className="container mx-auto px-4 py-6 relative z-10">
+        <main className="container mx-auto px-4 py-6">
           {activeTab === 'upload' && <ShotUpload />}
           {activeTab === 'dashboard' && <Dashboard />}
           {activeTab === 'leaderboard' && <Leaderboard />}
-          {activeTab === 'mybag' && <MyBag />}
-          {activeTab === 'retailer' && <RetailerUpgrade user={user} onUpgradeComplete={() => setActiveTab('upload')} />}
         </main>
       </div>
     </>
