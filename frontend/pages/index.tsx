@@ -5,6 +5,8 @@ import { useAuth } from '../contexts/AuthContext'
 import ShotUpload from '../components/ShotUpload'
 import Dashboard from '../components/Dashboard'
 import Leaderboard from '../components/Leaderboard'
+import RetailerUpgrade from '../components/RetailerUpgrade'
+import MyBag from '../components/MyBag'
 import LoadingSpinner from '../components/LoadingSpinner'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://golf-shot-transcription.onrender.com'
@@ -115,44 +117,70 @@ export default function Home() {
         {/* Navigation */}
         <nav className="bg-green-800 shadow-lg">
           <div className="container mx-auto px-4 py-4">
-            <div className="grid grid-cols-3 gap-4 max-w-2xl mx-auto">
+            <div className="grid grid-cols-5 gap-3 max-w-5xl mx-auto">
               {/* UPLOAD SHOT */}
               <button
                 onClick={() => setActiveTab('upload')}
-                className={`p-4 rounded-lg text-center transition-all transform hover:scale-105 font-bold ${
+                className={`p-3 rounded-lg text-center transition-all transform hover:scale-105 font-bold ${
                   activeTab === 'upload'
                     ? 'bg-white text-green-800 shadow-xl border-2 border-yellow-400'
                     : 'bg-green-700 hover:bg-green-600 text-white border border-green-500'
                 }`}
               >
-                <div className="text-2xl mb-1">📸</div>
-                <div className="text-sm">UPLOAD SHOT</div>
+                <div className="text-xl mb-1">📸</div>
+                <div className="text-xs">UPLOAD</div>
               </button>
 
               {/* MY SHOTS */}
               <button
                 onClick={() => setActiveTab('dashboard')}
-                className={`p-4 rounded-lg text-center transition-all transform hover:scale-105 font-bold ${
+                className={`p-3 rounded-lg text-center transition-all transform hover:scale-105 font-bold ${
                   activeTab === 'dashboard'
                     ? 'bg-white text-green-800 shadow-xl border-2 border-yellow-400'
                     : 'bg-green-700 hover:bg-green-600 text-white border border-green-500'
                 }`}
               >
-                <div className="text-2xl mb-1">📈</div>
-                <div className="text-sm">MY SHOTS</div>
+                <div className="text-xl mb-1">📈</div>
+                <div className="text-xs">MY SHOTS</div>
+              </button>
+
+              {/* MY BAG */}
+              <button
+                onClick={() => setActiveTab('mybag')}
+                className={`p-3 rounded-lg text-center transition-all transform hover:scale-105 font-bold ${
+                  activeTab === 'mybag'
+                    ? 'bg-white text-green-800 shadow-xl border-2 border-yellow-400'
+                    : 'bg-green-700 hover:bg-green-600 text-white border border-green-500'
+                }`}
+              >
+                <div className="text-xl mb-1">🎒</div>
+                <div className="text-xs">MY BAG</div>
               </button>
 
               {/* LEADERBOARD */}
               <button
                 onClick={() => setActiveTab('leaderboard')}
-                className={`p-4 rounded-lg text-center transition-all transform hover:scale-105 font-bold ${
+                className={`p-3 rounded-lg text-center transition-all transform hover:scale-105 font-bold ${
                   activeTab === 'leaderboard'
                     ? 'bg-white text-green-800 shadow-xl border-2 border-yellow-400'
                     : 'bg-green-700 hover:bg-green-600 text-white border border-green-500'
                 }`}
               >
-                <div className="text-2xl mb-1">🏆</div>
-                <div className="text-sm">LEADERBOARD</div>
+                <div className="text-xl mb-1">🏆</div>
+                <div className="text-xs">LEADERBOARD</div>
+              </button>
+
+              {/* RETAILER */}
+              <button
+                onClick={() => setActiveTab('retailer')}
+                className={`p-3 rounded-lg text-center transition-all transform hover:scale-105 font-bold ${
+                  activeTab === 'retailer'
+                    ? 'bg-white text-green-800 shadow-xl border-2 border-yellow-400'
+                    : 'bg-green-700 hover:bg-green-600 text-white border border-green-500'
+                }`}
+              >
+                <div className="text-xl mb-1">🏪</div>
+                <div className="text-xs">RETAILER</div>
               </button>
             </div>
           </div>
@@ -162,7 +190,9 @@ export default function Home() {
         <main className="container mx-auto px-4 py-6">
           {activeTab === 'upload' && <ShotUpload />}
           {activeTab === 'dashboard' && <Dashboard />}
+          {activeTab === 'mybag' && <MyBag />}
           {activeTab === 'leaderboard' && <Leaderboard />}
+          {activeTab === 'retailer' && <RetailerUpgrade user={user} />}
         </main>
       </div>
     </>
