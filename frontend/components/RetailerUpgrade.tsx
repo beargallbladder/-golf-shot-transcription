@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import toast from 'react-hot-toast'
 import { CheckIcon, StarIcon, ArrowRightIcon } from '@heroicons/react/24/outline'
 import apiClient from '../config/axios'
+import CleanButton from './CleanButton'
 import { useAuth } from '../contexts/AuthContext'
 
 interface Plan {
@@ -273,31 +274,16 @@ const RetailerUpgrade: React.FC<RetailerUpgradeProps> = ({ user, onUpgradeComple
           </div>
 
           <div className="mt-8 text-center">
-            <button
-              onClick={() => {
-                window.alert('Button clicked!')
-                console.log('🔘 Button clicked!')
-                handleUpgrade()
-              }}
-              disabled={upgrading || !businessName.trim()}
-              className={`px-8 py-4 rounded-lg font-bold text-lg transition-all transform hover:scale-105 flex items-center mx-auto ${
-                upgrading || !businessName.trim()
-                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                  : 'bg-golf-green text-white hover:bg-golf-lightgreen shadow-lg'
-              }`}
+            <CleanButton
+              onClick={handleUpgrade}
+              disabled={!businessName.trim()}
+              loading={upgrading}
+              size="lg"
+              className="mx-auto"
             >
-              {upgrading ? (
-                <>
-                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                  Processing...
-                </>
-              ) : (
-                <>
-                  Upgrade to Retailer
-                  <ArrowRightIcon className="w-5 h-5 ml-2" />
-                </>
-              )}
-            </button>
+              Upgrade to Retailer
+              <ArrowRightIcon className="w-5 h-5 ml-2" />
+            </CleanButton>
             
             <p className="text-sm text-gray-500 mt-4">
               * Stripe payment integration coming soon. You'll be contacted for billing setup.

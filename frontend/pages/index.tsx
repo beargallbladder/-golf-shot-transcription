@@ -9,7 +9,7 @@ import RetailerUpgrade from '../components/RetailerUpgrade'
 import RetailerDashboard from '../components/RetailerDashboard'
 import MyBag from '../components/MyBag'
 import LoadingSpinner from '../components/LoadingSpinner'
-import DebugUser from '../components/DebugUser'
+import CleanNavigation from '../components/CleanNavigation'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://golf-shot-transcription.onrender.com'
 
@@ -81,42 +81,29 @@ export default function Home() {
 
       <div className="min-h-screen bg-gray-50">
         {/* Header */}
-        <header className="bg-white shadow-sm border-b">
+        <header className="bg-white shadow-sm">
           <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-            <div className="flex items-center space-x-4">
-              <button
-                onClick={() => {
-                  console.log('🏠 Logo clicked - navigating to home (upload)')
-                  setActiveTab('upload')
-                }}
-                className="text-2xl font-bold text-green-800 hover:text-green-600 transition-colors cursor-pointer"
-              >
-                🏌️‍♂️ Beat My Bag
-              </button>
-            </div>
+            <button
+              onClick={() => setActiveTab('upload')}
+              className="text-2xl font-bold text-golf-green hover:text-golf-lightgreen transition-colors"
+            >
+              Beat My Bag
+            </button>
             
             <div className="flex items-center space-x-4">
-              {/* User Info */}
-              <div className="flex items-center space-x-3 bg-gray-50 rounded-lg px-4 py-2">
-                {user.profilePicture && (
-                  <Image
-                    src={user.profilePicture}
-                    alt={user.name}
-                    width={40}
-                    height={40}
-                    className="rounded-full border-2 border-green-600"
-                  />
-                )}
-                <div>
-                  <div className="text-gray-800 font-bold text-sm">{user.name}</div>
-                  <div className="text-gray-500 text-xs">Golfer</div>
-                </div>
-              </div>
-              
-              {/* Sign Out Button */}
+              {user.profilePicture && (
+                <Image
+                  src={user.profilePicture}
+                  alt={user.name}
+                  width={32}
+                  height={32}
+                  className="rounded-full"
+                />
+              )}
+              <span className="text-gray-700 font-medium">{user.name}</span>
               <button
                 onClick={logout}
-                className="bg-gray-600 hover:bg-gray-700 text-white font-medium px-4 py-2 rounded-lg transition-colors shadow-sm text-sm"
+                className="text-gray-500 hover:text-gray-700 text-sm transition-colors"
               >
                 Sign Out
               </button>
@@ -124,100 +111,15 @@ export default function Home() {
           </div>
         </header>
 
-        {/* Navigation */}
-        <nav className="bg-green-800 shadow-lg">
-          <div className="container mx-auto px-4 py-4">
-            <div className="grid grid-cols-5 gap-3 max-w-5xl mx-auto">
-              {/* UPLOAD SHOT */}
-              <button
-                onClick={() => {
-                  console.log('📸 Upload tab clicked!')
-                  setActiveTab('upload')
-                }}
-                className={`p-3 rounded-lg text-center transition-all transform hover:scale-105 font-bold ${
-                  activeTab === 'upload'
-                    ? 'bg-white text-green-800 shadow-xl border-2 border-yellow-400'
-                    : 'bg-green-700 hover:bg-green-600 text-white border border-green-500'
-                }`}
-              >
-                <div className="text-xl mb-1">📸</div>
-                <div className="text-xs">UPLOAD</div>
-              </button>
-
-              {/* MY SHOTS */}
-              <button
-                onClick={() => {
-                  console.log('📈 Dashboard tab clicked!')
-                  setActiveTab('dashboard')
-                }}
-                className={`p-3 rounded-lg text-center transition-all transform hover:scale-105 font-bold ${
-                  activeTab === 'dashboard'
-                    ? 'bg-white text-green-800 shadow-xl border-2 border-yellow-400'
-                    : 'bg-green-700 hover:bg-green-600 text-white border border-green-500'
-                }`}
-              >
-                <div className="text-xl mb-1">📈</div>
-                <div className="text-xs">MY SHOTS</div>
-              </button>
-
-              {/* MY BAG */}
-              <button
-                onClick={() => {
-                  console.log('🎒 MyBag tab clicked!')
-                  setActiveTab('mybag')
-                }}
-                className={`p-3 rounded-lg text-center transition-all transform hover:scale-105 font-bold ${
-                  activeTab === 'mybag'
-                    ? 'bg-white text-green-800 shadow-xl border-2 border-yellow-400'
-                    : 'bg-green-700 hover:bg-green-600 text-white border border-green-500'
-                }`}
-              >
-                <div className="text-xl mb-1">🎒</div>
-                <div className="text-xs">MY BAG</div>
-              </button>
-
-              {/* LEADERBOARD */}
-              <button
-                onClick={() => {
-                  console.log('🏆 Leaderboard tab clicked!')
-                  setActiveTab('leaderboard')
-                }}
-                className={`p-3 rounded-lg text-center transition-all transform hover:scale-105 font-bold ${
-                  activeTab === 'leaderboard'
-                    ? 'bg-white text-green-800 shadow-xl border-2 border-yellow-400'
-                    : 'bg-green-700 hover:bg-green-600 text-white border border-green-500'
-                }`}
-              >
-                <div className="text-xl mb-1">🏆</div>
-                <div className="text-xs">LEADERBOARD</div>
-              </button>
-
-              {/* RETAILER */}
-              <button
-                onClick={() => {
-                  console.log('🏪 Retailer tab clicked!')
-                  console.log('👤 Current user:', user)
-                  console.log('📊 Account type:', user?.accountType)
-                  setActiveTab('retailer')
-                }}
-                className={`p-3 rounded-lg text-center transition-all transform hover:scale-105 font-bold ${
-                  activeTab === 'retailer'
-                    ? 'bg-white text-green-800 shadow-xl border-2 border-yellow-400'
-                    : 'bg-green-700 hover:bg-green-600 text-white border border-green-500'
-                }`}
-              >
-                <div className="text-xl mb-1">🏪</div>
-                <div className="text-xs">{user?.accountType === 'retailer' ? 'DASHBOARD' : 'RETAILER'}</div>
-              </button>
-            </div>
-          </div>
-        </nav>
+        {/* Clean Navigation */}
+        <CleanNavigation 
+          activeTab={activeTab} 
+          onTabChange={setActiveTab} 
+          user={user} 
+        />
 
         {/* Main Content */}
-        <main className="container mx-auto px-4 py-6">
-          {/* Debug Panel - Remove in production */}
-          <DebugUser />
-          
+        <main className="container mx-auto px-4 py-8">
           {activeTab === 'upload' && <ShotUpload />}
           {activeTab === 'dashboard' && <Dashboard />}
           {activeTab === 'mybag' && <MyBag />}
@@ -226,8 +128,6 @@ export default function Home() {
             user?.accountType === 'retailer' ? 
               <RetailerDashboard /> : 
               <RetailerUpgrade user={user} onUpgradeComplete={() => {
-                console.log('🎉 Upgrade completed callback triggered')
-                // Force a page refresh to update the user context
                 window.location.reload()
               }} />
           )}
