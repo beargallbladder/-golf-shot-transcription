@@ -84,7 +84,15 @@ export default function Home() {
         <header className="bg-white shadow-sm border-b">
           <div className="container mx-auto px-4 py-4 flex justify-between items-center">
             <div className="flex items-center space-x-4">
-              <h1 className="text-2xl font-bold text-green-800">🏌️‍♂️ Beat My Bag</h1>
+              <button
+                onClick={() => {
+                  console.log('🏠 Logo clicked - navigating to home (upload)')
+                  setActiveTab('upload')
+                }}
+                className="text-2xl font-bold text-green-800 hover:text-green-600 transition-colors cursor-pointer"
+              >
+                🏌️‍♂️ Beat My Bag
+              </button>
             </div>
             
             <div className="flex items-center space-x-4">
