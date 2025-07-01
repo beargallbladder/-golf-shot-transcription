@@ -32,10 +32,12 @@ CRITICAL REQUIREMENTS:
 4. Provide fitting recommendations
 5. Return data in JSON format ONLY - no other text
 
+IMPORTANT: Look for CARRY vs TOTAL distance - prioritize CARRY distance as the main distance.
+
 Extract these fields (use null if not visible):
 {
   "speed": number (ball speed in mph),
-  "distance": number (total distance in yards),
+  "distance": number (carry distance in yards - primary distance metric),
   "spin": number (backspin in rpm),
   "launchAngle": number (launch angle in degrees),
   "club": "string (e.g., 'Driver', '7-Iron', 'Pitching Wedge')",
@@ -48,7 +50,8 @@ Extract these fields (use null if not visible):
   "lieAngle": number (lie angle in degrees if visible),
   "clubheadSpeed": number (clubhead speed in mph if different from ball speed),
   "smashFactor": number (ball speed / clubhead speed if calculable),
-  "carryDistance": number (carry distance if different from total),
+  "carryDistance": number (carry distance - should match main distance field),
+  "totalDistance": number (total distance including roll if visible),
   "rollDistance": number (roll distance if visible),
   "sideDistance": number (side distance/deviation if visible),
   "peakHeight": number (max height in yards if visible),
@@ -125,11 +128,16 @@ const analyzeShotImage = async (imageBase64, options = {}) => {
               type: "text",
               text: `Analyze this golf simulator screenshot and extract the shot data. ${languageInstructions}
 
+IMPORTANT: Look carefully for CARRY distance vs TOTAL distance. Many simulators show both:
+- CARRY distance (ball lands) - this is usually the primary metric
+- TOTAL distance (carry + roll) - often much larger
+- If you see both, prioritize CARRY distance as the main "distance" field
+
 Return ONLY a JSON object with these exact fields:
 
 {
   "speed": number (ball speed in mph, null if not visible),
-  "distance": number (total distance in yards, null if not visible), 
+  "distance": number (carry distance in yards - NOT total distance, null if not visible), 
   "spin": number (backspin in rpm, null if not visible),
   "launchAngle": number (launch angle in degrees, null if not visible),
   "club": "string (inferred club type based on distance - e.g., 'Driver' for 250+ yards, '7-Iron' for 150-170 yards, 'Pitching Wedge' for 100-130 yards, etc. Use null if cannot infer)"
