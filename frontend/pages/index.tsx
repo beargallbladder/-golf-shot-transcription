@@ -6,8 +6,10 @@ import ShotUpload from '../components/ShotUpload'
 import Dashboard from '../components/Dashboard'
 import Leaderboard from '../components/Leaderboard'
 import RetailerUpgrade from '../components/RetailerUpgrade'
+import RetailerDashboard from '../components/RetailerDashboard'
 import MyBag from '../components/MyBag'
 import LoadingSpinner from '../components/LoadingSpinner'
+import DebugUser from '../components/DebugUser'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://golf-shot-transcription.onrender.com'
 
@@ -172,7 +174,12 @@ export default function Home() {
 
               {/* RETAILER */}
               <button
-                onClick={() => setActiveTab('retailer')}
+                onClick={() => {
+                  console.log('🏪 Retailer tab clicked!')
+                  console.log('👤 Current user:', user)
+                  console.log('📊 Account type:', user?.accountType)
+                  setActiveTab('retailer')
+                }}
                 className={`p-3 rounded-lg text-center transition-all transform hover:scale-105 font-bold ${
                   activeTab === 'retailer'
                     ? 'bg-white text-green-800 shadow-xl border-2 border-yellow-400'
@@ -180,7 +187,7 @@ export default function Home() {
                 }`}
               >
                 <div className="text-xl mb-1">🏪</div>
-                <div className="text-xs">RETAILER</div>
+                <div className="text-xs">{user?.accountType === 'retailer' ? 'DASHBOARD' : 'RETAILER'}</div>
               </button>
             </div>
           </div>
@@ -188,11 +195,22 @@ export default function Home() {
 
         {/* Main Content */}
         <main className="container mx-auto px-4 py-6">
+          {/* Debug Panel - Remove in production */}
+          <DebugUser />
+          
           {activeTab === 'upload' && <ShotUpload />}
           {activeTab === 'dashboard' && <Dashboard />}
           {activeTab === 'mybag' && <MyBag />}
           {activeTab === 'leaderboard' && <Leaderboard />}
-          {activeTab === 'retailer' && <RetailerUpgrade user={user} />}
+          {activeTab === 'retailer' && (
+            user?.accountType === 'retailer' ? 
+              <RetailerDashboard /> : 
+              <RetailerUpgrade user={user} onUpgradeComplete={() => {
+                console.log('🎉 Upgrade completed callback triggered')
+                // Force a page refresh to update the user context
+                window.location.reload()
+              }} />
+          )}
         </main>
       </div>
     </>

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import toast from 'react-hot-toast'
 import { CheckIcon, StarIcon, ArrowRightIcon } from '@heroicons/react/24/outline'
 import apiClient from '../config/axios'
+import { useAuth } from '../contexts/AuthContext'
 
 interface Plan {
   id: string
@@ -18,18 +19,23 @@ interface RetailerUpgradeProps {
 }
 
 const RetailerUpgrade: React.FC<RetailerUpgradeProps> = ({ user, onUpgradeComplete }) => {
+  console.log('🔧 RetailerUpgrade component loaded')
+  console.log('👤 User data:', user)
+  
   const [plans, setPlans] = useState<Plan[]>([])
   const [selectedPlan, setSelectedPlan] = useState<string>('')
   const [businessName, setBusinessName] = useState('')
   const [location, setLocation] = useState('')
   const [loading, setLoading] = useState(false)
   const [upgrading, setUpgrading] = useState(false)
+  const { token, login } = useAuth();
 
   // Check if this is Fairway Golf USA (first customer)
   const isFairwayGolf = user?.email?.includes('fairwaygolfusa.com')
   
   // Pre-fill business info for Fairway Golf
   useEffect(() => {
+    console.log('🔄 RetailerUpgrade useEffect running')
     if (isFairwayGolf) {
       setBusinessName('Fairway Golf USA')
       setLocation('San Diego, CA')
@@ -37,14 +43,17 @@ const RetailerUpgrade: React.FC<RetailerUpgradeProps> = ({ user, onUpgradeComple
   }, [isFairwayGolf])
 
   useEffect(() => {
+    console.log('📡 Fetching pricing plans...')
     fetchPricing()
   }, [])
 
   const fetchPricing = async () => {
     try {
+      console.log('💰 Starting fetchPricing...')
       setLoading(true)
       
       const response = await apiClient.get('/auth/retailer/pricing')
+      console.log('✅ Pricing response:', response.data)
       setPlans(response.data.plans)
       // Auto-select recommended plan
       const recommended = response.data.plans.find((p: Plan) => p.recommended)
@@ -52,7 +61,7 @@ const RetailerUpgrade: React.FC<RetailerUpgradeProps> = ({ user, onUpgradeComple
         setSelectedPlan(recommended.id)
       }
     } catch (error: any) {
-      console.error('Fetch pricing error:', error)
+      console.error('❌ Fetch pricing error:', error)
       const errorMessage = error.response?.data?.message || error.response?.data?.error || 'Failed to load pricing plans'
       toast.error(errorMessage)
     } finally {
@@ -61,13 +70,19 @@ const RetailerUpgrade: React.FC<RetailerUpgradeProps> = ({ user, onUpgradeComple
   }
 
   const handleUpgrade = async () => {
+    console.log('🎯 handleUpgrade clicked!')
+    console.log('📋 Form data:', { selectedPlan, businessName, location })
+    
     if (!selectedPlan || !businessName.trim()) {
+      console.log('❌ Validation failed')
       toast.error('Please fill in all required fields')
       return
     }
 
     try {
       setUpgrading(true)
+      console.log('🚀 Starting retailer upgrade for:', user?.email)
+      console.log('📋 Upgrade data:', { plan: selectedPlan, businessName, location })
       
       const response = await apiClient.post('/auth/retailer/upgrade', {
         plan: selectedPlan,
@@ -75,10 +90,22 @@ const RetailerUpgrade: React.FC<RetailerUpgradeProps> = ({ user, onUpgradeComple
         location: location.trim()
       })
 
+      console.log('✅ Upgrade response:', response.data)
       toast.success('🎉 Retailer upgrade initiated! Check your email for next steps.')
+      
+      console.log('🔄 Refreshing user context...')
+      if (token) {
+        console.log('📡 Calling login with token to refresh context')
+        await login(token, false)
+        console.log('✅ User context refreshed')
+      } else {
+        console.log('❌ No token available for context refresh')
+      }
+      
       onUpgradeComplete?.()
     } catch (error: any) {
-      console.error('Upgrade error:', error)
+      console.error('❌ Upgrade error:', error)
+      console.error('❌ Error response:', error.response?.data)
       const errorMessage = error.response?.data?.message || error.response?.data?.error || 'Failed to process upgrade'
       toast.error(errorMessage)
     } finally {
@@ -247,7 +274,11 @@ const RetailerUpgrade: React.FC<RetailerUpgradeProps> = ({ user, onUpgradeComple
 
           <div className="mt-8 text-center">
             <button
-              onClick={handleUpgrade}
+              onClick={() => {
+                window.alert('Button clicked!')
+                console.log('🔘 Button clicked!')
+                handleUpgrade()
+              }}
               disabled={upgrading || !businessName.trim()}
               className={`px-8 py-4 rounded-lg font-bold text-lg transition-all transform hover:scale-105 flex items-center mx-auto ${
                 upgrading || !businessName.trim()
@@ -262,7 +293,7 @@ const RetailerUpgrade: React.FC<RetailerUpgradeProps> = ({ user, onUpgradeComple
                 </>
               ) : (
                 <>
-                  Upgrade to Retailer
+                  THIS IS THE REAL UPGRADE BUTTON
                   <ArrowRightIcon className="w-5 h-5 ml-2" />
                 </>
               )}

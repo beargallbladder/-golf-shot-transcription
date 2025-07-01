@@ -4,6 +4,7 @@ import axios from 'axios'
 import toast from 'react-hot-toast'
 import { CameraIcon, PhotoIcon, ArrowUpTrayIcon } from '@heroicons/react/24/outline'
 import LoadingSpinner from './LoadingSpinner'
+import { useAuth } from '../contexts/AuthContext'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://golf-shot-transcription.onrender.com'
 
@@ -15,6 +16,20 @@ interface ShotData {
   launchAngle: number
   club: string
   createdAt: string
+  enhancedData?: {
+    clubBrand?: string
+    clubModel?: string
+    shaftType?: string
+    shaftFlex?: string
+    gripType?: string
+    loftAngle?: number
+    lieAngle?: number
+    fittingNotes?: string
+    recommendations?: string
+    fittingSessionId?: string
+    customerEmail?: string
+    isFittingData?: boolean
+  }
 }
 
 interface ShotUploadProps {
@@ -22,11 +37,20 @@ interface ShotUploadProps {
 }
 
 const ShotUpload: React.FC<ShotUploadProps> = ({ onShotAnalyzed }) => {
+  const { user } = useAuth()
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [analyzedShot, setAnalyzedShot] = useState<ShotData | null>(null)
   const [uploadedImage, setUploadedImage] = useState<string | null>(null)
   const [editingClub, setEditingClub] = useState(false)
   const [tempClub, setTempClub] = useState('')
+  
+  // Retailer-specific fields
+  const [customerEmail, setCustomerEmail] = useState('')
+  const [fittingSessionId, setFittingSessionId] = useState('')
+  const [retailerNotes, setRetailerNotes] = useState('')
+  const [isFittingData, setIsFittingData] = useState(false)
+
+  const isRetailer = user?.accountType === 'retailer'
 
   const convertToBase64 = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -106,10 +130,21 @@ const ShotUpload: React.FC<ShotUploadProps> = ({ onShotAnalyzed }) => {
       const base64 = await convertToBase64(compressedFile)
       setUploadedImage(base64)
 
-      // Send to backend for analysis
-      const response = await axios.post(`${API_URL}/api/shots`, {
+      // Prepare request payload
+      const payload: any = {
         imageBase64: base64
-      })
+      }
+
+      // Add retailer-specific data if user is a retailer
+      if (isRetailer) {
+        if (customerEmail) payload.customerEmail = customerEmail
+        if (fittingSessionId) payload.fittingSessionId = fittingSessionId
+        if (retailerNotes) payload.retailerNotes = retailerNotes
+        if (isFittingData) payload.isFittingData = true
+      }
+
+      // Send to backend for analysis
+      const response = await axios.post(`${API_URL}/api/shots`, payload)
 
       const { shot, personalBest } = response.data
       setAnalyzedShot(shot)
@@ -165,6 +200,10 @@ const ShotUpload: React.FC<ShotUploadProps> = ({ onShotAnalyzed }) => {
   const resetUpload = () => {
     setAnalyzedShot(null)
     setUploadedImage(null)
+    setCustomerEmail('')
+    setFittingSessionId('')
+    setRetailerNotes('')
+    setIsFittingData(false)
   }
 
   return (
@@ -180,11 +219,72 @@ const ShotUpload: React.FC<ShotUploadProps> = ({ onShotAnalyzed }) => {
           }}
         />
         <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold text-gray-800 mb-2">Upload Golf Shot</h2>
+          <h2 className="text-3xl font-bold text-gray-800 mb-2">
+            {isRetailer ? '🏪 Retailer Shot Upload' : 'Upload Golf Shot'}
+          </h2>
           <p className="text-gray-600">
-            Take a photo or upload a screenshot of your golf simulator display
+            {isRetailer 
+              ? 'Upload customer shots with enhanced analysis and fitting data'
+              : 'Take a photo or upload a screenshot of your golf simulator display'
+            }
           </p>
         </div>
+
+        {/* Retailer Fields */}
+        {isRetailer && (
+          <div className="mb-6 bg-gray-50 rounded-lg p-6">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">Fitting Information</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Customer Email
+                </label>
+                <input
+                  type="email"
+                  value={customerEmail}
+                  onChange={(e) => setCustomerEmail(e.target.value)}
+                  placeholder="customer@example.com"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-golf-green focus:border-transparent"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Fitting Session ID
+                </label>
+                <input
+                  type="text"
+                  value={fittingSessionId}
+                  onChange={(e) => setFittingSessionId(e.target.value)}
+                  placeholder="Optional session ID"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-golf-green focus:border-transparent"
+                />
+              </div>
+            </div>
+            <div className="mt-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Fitting Notes
+              </label>
+              <textarea
+                value={retailerNotes}
+                onChange={(e) => setRetailerNotes(e.target.value)}
+                placeholder="Add fitting notes, recommendations, or observations..."
+                rows={3}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-golf-green focus:border-transparent"
+              />
+            </div>
+            <div className="mt-4">
+              <label className="flex items-center">
+                <input
+                  type="checkbox"
+                  checked={isFittingData}
+                  onChange={(e) => setIsFittingData(e.target.checked)}
+                  className="rounded border-gray-300 text-golf-green focus:ring-golf-green"
+                />
+                <span className="ml-2 text-sm text-gray-700">This is fitting session data</span>
+              </label>
+            </div>
+          </div>
+        )}
 
         {!analyzedShot && (
           <div
@@ -200,7 +300,7 @@ const ShotUpload: React.FC<ShotUploadProps> = ({ onShotAnalyzed }) => {
             {isAnalyzing ? (
               <LoadingSpinner 
                 size="lg" 
-                text="AI is analyzing your shot..."
+                text={isRetailer ? "AI is analyzing customer shot..." : "AI is analyzing your shot..."}
               />
             ) : (
               <div className="space-y-4">
@@ -247,9 +347,11 @@ const ShotUpload: React.FC<ShotUploadProps> = ({ onShotAnalyzed }) => {
               </div>
             )}
 
-            {/* Shot Analysis Results */}
+            {/* Enhanced Shot Analysis Results for Retailers */}
             <div className="bg-gradient-to-r from-golf-green to-golf-lightgreen rounded-xl p-6 text-white">
-              <h3 className="text-2xl font-bold mb-6 text-center">Shot Analysis Results</h3>
+              <h3 className="text-2xl font-bold mb-6 text-center">
+                {isRetailer ? 'Enhanced Shot Analysis' : 'Shot Analysis Results'}
+              </h3>
               
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="bg-white bg-opacity-20 rounded-lg p-4 text-center">
@@ -280,6 +382,51 @@ const ShotUpload: React.FC<ShotUploadProps> = ({ onShotAnalyzed }) => {
                   <div className="text-sm opacity-90">Launch Angle</div>
                 </div>
               </div>
+
+              {/* Retailer-specific enhanced data */}
+              {isRetailer && analyzedShot.enhancedData && (
+                <div className="mt-6 bg-white bg-opacity-10 rounded-lg p-4">
+                  <h4 className="text-lg font-semibold mb-3 text-center">Club Specifications</h4>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
+                    {analyzedShot.enhancedData.clubBrand && (
+                      <div>
+                        <span className="opacity-75">Brand:</span>
+                        <div className="font-semibold">{analyzedShot.enhancedData.clubBrand}</div>
+                      </div>
+                    )}
+                    {analyzedShot.enhancedData.clubModel && (
+                      <div>
+                        <span className="opacity-75">Model:</span>
+                        <div className="font-semibold">{analyzedShot.enhancedData.clubModel}</div>
+                      </div>
+                    )}
+                    {analyzedShot.enhancedData.shaftType && (
+                      <div>
+                        <span className="opacity-75">Shaft:</span>
+                        <div className="font-semibold">{analyzedShot.enhancedData.shaftType}</div>
+                      </div>
+                    )}
+                    {analyzedShot.enhancedData.shaftFlex && (
+                      <div>
+                        <span className="opacity-75">Flex:</span>
+                        <div className="font-semibold">{analyzedShot.enhancedData.shaftFlex}</div>
+                      </div>
+                    )}
+                    {analyzedShot.enhancedData.loftAngle && (
+                      <div>
+                        <span className="opacity-75">Loft:</span>
+                        <div className="font-semibold">{analyzedShot.enhancedData.loftAngle}°</div>
+                      </div>
+                    )}
+                    {analyzedShot.enhancedData.lieAngle && (
+                      <div>
+                        <span className="opacity-75">Lie:</span>
+                        <div className="font-semibold">{analyzedShot.enhancedData.lieAngle}°</div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Enhanced Action Buttons */}
@@ -289,7 +436,9 @@ const ShotUpload: React.FC<ShotUploadProps> = ({ onShotAnalyzed }) => {
                 <p className="text-white font-bold text-lg mb-2">
                   🔥 {analyzedShot.distance} yards! Still pounding it! 💪
                 </p>
-                <p className="text-white text-sm opacity-90">Ready to share this shot?</p>
+                <p className="text-white text-sm opacity-90">
+                  {isRetailer ? 'Ready to share this fitting data?' : 'Ready to share this shot?'}
+                </p>
               </div>
 
               {/* Quick Share Buttons */}
@@ -335,7 +484,7 @@ const ShotUpload: React.FC<ShotUploadProps> = ({ onShotAnalyzed }) => {
                   onClick={resetUpload}
                   className="px-6 py-3 bg-white bg-opacity-20 text-white rounded-lg hover:bg-opacity-30 transition-colors"
                 >
-                  Upload Another Shot
+                  {isRetailer ? 'Upload Another Customer Shot' : 'Upload Another Shot'}
                 </button>
                 <button
                   onClick={() => {
