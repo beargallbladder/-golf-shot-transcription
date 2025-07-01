@@ -28,7 +28,7 @@ router.post('/', requireJWT, validateShotUpload, async (req, res) => {
       });
     }
 
-    const { imageBase64, fittingSessionId, customerEmail, retailerNotes } = req.body;
+    const { imageBase64, fittingSessionId, customerEmail, retailerNotes, language } = req.body;
     const userId = req.user.id;
 
     // Get user account type for enhanced analysis
@@ -81,8 +81,8 @@ router.post('/', requireJWT, validateShotUpload, async (req, res) => {
 
     // Use enhanced analysis for retailer accounts
     const shotData = isRetailer 
-      ? await analyzeRetailerShotImage(imageBase64)
-      : await analyzeShotImage(imageBase64);
+      ? await analyzeRetailerShotImage(imageBase64, { language })
+      : await analyzeShotImage(imageBase64, { language });
 
     // Save shot to database with enhanced data for retailers
     let result;

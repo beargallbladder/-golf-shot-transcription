@@ -4,10 +4,14 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-// Enhanced analysis for retailer accounts
+// Enhanced analysis for retailer accounts with multilingual support
 const analyzeRetailerShotImage = async (imageBase64, options = {}) => {
   try {
     console.log('🔍 Starting ENHANCED retailer shot analysis...');
+    
+    // Determine language for analysis
+    const language = options.language || 'english';
+    const languageInstructions = getLanguageInstructions(language);
     
     const response = await openai.chat.completions.create({
       model: "gpt-4o",
@@ -18,6 +22,8 @@ const analyzeRetailerShotImage = async (imageBase64, options = {}) => {
             {
               type: "text",
               text: `You are a professional golf club fitting expert analyzing a golf simulator shot. Extract ALL possible data from this image with MAXIMUM detail for professional fitting purposes.
+
+${languageInstructions}
 
 CRITICAL REQUIREMENTS:
 1. Extract basic shot metrics (speed, distance, spin, launch angle)
@@ -47,8 +53,8 @@ Extract these fields (use null if not visible):
   "sideDistance": number (side distance/deviation if visible),
   "peakHeight": number (max height in yards if visible),
   "descentAngle": number (descent angle in degrees if visible),
-  "fittingNotes": "string (professional observations about swing, ball flight, club performance)",
-  "recommendations": "string (fitting recommendations based on data)"
+  "fittingNotes": "string (professional observations about swing, ball flight, club performance in ${language})",
+  "recommendations": "string (fitting recommendations based on data in ${language})"
 }`
             },
             {
@@ -100,10 +106,14 @@ Extract these fields (use null if not visible):
   }
 };
 
-// Original consumer analysis (keep existing functionality)
-const analyzeShotImage = async (imageBase64) => {
+// Original consumer analysis with multilingual support
+const analyzeShotImage = async (imageBase64, options = {}) => {
   try {
     console.log('🔍 Starting consumer shot analysis...');
+    
+    // Determine language for analysis
+    const language = options.language || 'english';
+    const languageInstructions = getLanguageInstructions(language);
     
     const response = await openai.chat.completions.create({
       model: "gpt-4o",
@@ -113,7 +123,9 @@ const analyzeShotImage = async (imageBase64) => {
           content: [
             {
               type: "text",
-              text: `Analyze this golf simulator screenshot and extract the shot data. Return ONLY a JSON object with these exact fields:
+              text: `Analyze this golf simulator screenshot and extract the shot data. ${languageInstructions}
+
+Return ONLY a JSON object with these exact fields:
 
 {
   "speed": number (ball speed in mph, null if not visible),
@@ -170,7 +182,48 @@ CRITICAL: Return ONLY the JSON object, no other text. If you cannot read specifi
   }
 };
 
+// Language-specific instructions for multilingual support
+const getLanguageInstructions = (language) => {
+  switch (language.toLowerCase()) {
+    case 'japanese':
+    case 'ja':
+      return `IMPORTANT: The golf simulator interface may display text in Japanese. You can read and understand Japanese text, numbers, and golf terminology. Look for:
+- ボール速度 (ball speed)
+- 飛距離 (distance) 
+- スピン (spin)
+- 打ち出し角 (launch angle)
+- クラブ (club)
+Common Japanese golf terms: ドライバー (driver), アイアン (iron), ウェッジ (wedge), パター (putter)`;
+
+    case 'korean':
+    case 'ko':
+      return `IMPORTANT: The golf simulator interface may display text in Korean. You can read and understand Korean text, numbers, and golf terminology. Look for:
+- 볼 스피드 (ball speed)
+- 비거리 (distance)
+- 스핀 (spin) 
+- 런치 앵글 (launch angle)
+- 클럽 (club)
+Common Korean golf terms: 드라이버 (driver), 아이언 (iron), 웨지 (wedge), 퍼터 (putter)`;
+
+    case 'spanish':
+    case 'es':
+      return `IMPORTANT: The golf simulator interface may display text in Spanish. You can read and understand Spanish text, numbers, and golf terminology. Look for:
+- Velocidad de bola (ball speed)
+- Distancia (distance)
+- Efecto (spin)
+- Ángulo de lanzamiento (launch angle)
+- Palo (club)
+Common Spanish golf terms: Driver, Hierro (iron), Wedge, Putter`;
+
+    case 'english':
+    case 'en':
+    default:
+      return `IMPORTANT: The golf simulator interface displays text in English. Look for standard golf metrics and terminology.`;
+  }
+};
+
 module.exports = {
   analyzeShotImage,
-  analyzeRetailerShotImage
+  analyzeRetailerShotImage,
+  getLanguageInstructions
 }; 

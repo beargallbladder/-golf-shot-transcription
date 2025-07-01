@@ -49,6 +49,7 @@ const ShotUpload: React.FC<ShotUploadProps> = ({ onShotAnalyzed }) => {
   const [fittingSessionId, setFittingSessionId] = useState('')
   const [retailerNotes, setRetailerNotes] = useState('')
   const [isFittingData, setIsFittingData] = useState(false)
+  const [selectedLanguage, setSelectedLanguage] = useState('english')
 
   const isRetailer = user?.accountType === 'retailer'
 
@@ -135,6 +136,11 @@ const ShotUpload: React.FC<ShotUploadProps> = ({ onShotAnalyzed }) => {
         imageBase64: base64
       }
 
+      // Add language selection for all users
+      if (selectedLanguage !== 'english') {
+        payload.language = selectedLanguage
+      }
+
       // Add retailer-specific data if user is a retailer
       if (isRetailer) {
         if (customerEmail) payload.customerEmail = customerEmail
@@ -204,6 +210,7 @@ const ShotUpload: React.FC<ShotUploadProps> = ({ onShotAnalyzed }) => {
     setFittingSessionId('')
     setRetailerNotes('')
     setIsFittingData(false)
+    setSelectedLanguage('english')
   }
 
   return (
@@ -228,6 +235,34 @@ const ShotUpload: React.FC<ShotUploadProps> = ({ onShotAnalyzed }) => {
               : 'Take a photo or upload a screenshot of your golf simulator display'
             }
           </p>
+        </div>
+
+        {/* Language Selection for All Users */}
+        <div className="mb-6 bg-blue-50 rounded-lg p-6 border border-blue-200">
+          <h3 className="text-lg font-semibold text-blue-800 mb-4 flex items-center">
+            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
+            </svg>
+            Simulator Language / シミュレーター言語 / 시뮬레이터 언어
+          </h3>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Select your golf simulator's display language for accurate data extraction
+            </label>
+            <select
+              value={selectedLanguage}
+              onChange={(e) => setSelectedLanguage(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value="english">🇺🇸 English</option>
+              <option value="japanese">🇯🇵 日本語 (Japanese)</option>
+              <option value="korean">🇰🇷 한국어 (Korean)</option>
+              <option value="spanish">🇪🇸 Español (Spanish)</option>
+            </select>
+            <p className="text-xs text-gray-500 mt-1">
+              This helps our AI accurately read the numbers and text from your golf simulator screen
+            </p>
+          </div>
         </div>
 
         {/* Retailer Fields */}
