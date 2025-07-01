@@ -293,7 +293,7 @@ const RetailerUpgrade: React.FC<RetailerUpgradeProps> = ({ user, onUpgradeComple
                 </>
               ) : (
                 <>
-                  THIS IS THE REAL UPGRADE BUTTON
+                  Upgrade to Retailer
                   <ArrowRightIcon className="w-5 h-5 ml-2" />
                 </>
               )}

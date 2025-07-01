@@ -122,7 +122,10 @@ export default function Home() {
             <div className="grid grid-cols-5 gap-3 max-w-5xl mx-auto">
               {/* UPLOAD SHOT */}
               <button
-                onClick={() => setActiveTab('upload')}
+                onClick={() => {
+                  console.log('📸 Upload tab clicked!')
+                  setActiveTab('upload')
+                }}
                 className={`p-3 rounded-lg text-center transition-all transform hover:scale-105 font-bold ${
                   activeTab === 'upload'
                     ? 'bg-white text-green-800 shadow-xl border-2 border-yellow-400'
@@ -135,7 +138,10 @@ export default function Home() {
 
               {/* MY SHOTS */}
               <button
-                onClick={() => setActiveTab('dashboard')}
+                onClick={() => {
+                  console.log('📈 Dashboard tab clicked!')
+                  setActiveTab('dashboard')
+                }}
                 className={`p-3 rounded-lg text-center transition-all transform hover:scale-105 font-bold ${
                   activeTab === 'dashboard'
                     ? 'bg-white text-green-800 shadow-xl border-2 border-yellow-400'
@@ -148,7 +154,10 @@ export default function Home() {
 
               {/* MY BAG */}
               <button
-                onClick={() => setActiveTab('mybag')}
+                onClick={() => {
+                  console.log('🎒 MyBag tab clicked!')
+                  setActiveTab('mybag')
+                }}
                 className={`p-3 rounded-lg text-center transition-all transform hover:scale-105 font-bold ${
                   activeTab === 'mybag'
                     ? 'bg-white text-green-800 shadow-xl border-2 border-yellow-400'
@@ -161,7 +170,10 @@ export default function Home() {
 
               {/* LEADERBOARD */}
               <button
-                onClick={() => setActiveTab('leaderboard')}
+                onClick={() => {
+                  console.log('🏆 Leaderboard tab clicked!')
+                  setActiveTab('leaderboard')
+                }}
                 className={`p-3 rounded-lg text-center transition-all transform hover:scale-105 font-bold ${
                   activeTab === 'leaderboard'
                     ? 'bg-white text-green-800 shadow-xl border-2 border-yellow-400'

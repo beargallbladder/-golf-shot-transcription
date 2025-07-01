@@ -39,12 +39,26 @@ const MyBag: React.FC = () => {
   const fetchMyBag = async () => {
     try {
       setLoading(true)
-      const response = await axios.get(`${API_URL}/api/shots/my-bag`)
+      console.log('🎒 Fetching My Bag data...')
+      
+      const token = localStorage.getItem('token')
+      if (!token) {
+        throw new Error('No authentication token found')
+      }
+
+      const response = await axios.get(`${API_URL}/api/shots/my-bag`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+      
+      console.log('✅ My Bag response:', response.data)
       setBag(response.data.bag)
       setStats(response.data.stats)
-    } catch (error) {
-      console.error('Fetch my bag error:', error)
-      toast.error('Failed to load your bag')
+    } catch (error: any) {
+      console.error('❌ Fetch my bag error:', error)
+      const errorMessage = error.response?.data?.message || error.message
+      toast.error(`Failed to load your bag: ${errorMessage}`)
     } finally {
       setLoading(false)
     }
@@ -195,7 +209,7 @@ const MyBag: React.FC = () => {
                       </div>
                       <div className="text-center">
                         <div className="text-lg font-bold text-gray-700">
-                          {clubData.speed ? clubData.speed.toFixed(1) : 'N/A'}
+                          {clubData.speed && typeof clubData.speed === 'number' ? clubData.speed.toFixed(1) : 'N/A'}
                         </div>
                         <div className="text-xs text-gray-500">Speed (mph)</div>
                       </div>
@@ -207,7 +221,7 @@ const MyBag: React.FC = () => {
                       </div>
                       <div className="text-center">
                         <div className="text-lg font-bold text-gray-700">
-                          {clubData.launch_angle ? `${clubData.launch_angle.toFixed(1)}°` : 'N/A'}
+                          {clubData.launch_angle && typeof clubData.launch_angle === 'number' ? `${clubData.launch_angle.toFixed(1)}°` : 'N/A'}
                         </div>
                         <div className="text-xs text-gray-500">Launch Angle</div>
                       </div>
