@@ -4,6 +4,7 @@ import axios from 'axios'
 import toast from 'react-hot-toast'
 import { CameraIcon, PhotoIcon, ArrowUpTrayIcon } from '@heroicons/react/24/outline'
 import LoadingSpinner from './LoadingSpinner'
+import VoiceTranscription from './VoiceTranscription'
 import { useAuth } from '../contexts/AuthContext'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://golf-shot-transcription.onrender.com'
@@ -243,11 +244,11 @@ const ShotUpload: React.FC<ShotUploadProps> = ({ onShotAnalyzed }) => {
             <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
             </svg>
-            Simulator Language / シミュレーター言語 / 시뮬레이터 언어
+            Language Settings / 言語設定 / 언어 설정 / Configuración de idioma
           </h3>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Select your golf simulator's display language for accurate data extraction
+              Select your preferred language for simulator reading and voice transcription
             </label>
             <select
               value={selectedLanguage}
@@ -259,9 +260,11 @@ const ShotUpload: React.FC<ShotUploadProps> = ({ onShotAnalyzed }) => {
               <option value="korean">🇰🇷 한국어 (Korean)</option>
               <option value="spanish">🇪🇸 Español (Spanish)</option>
             </select>
-            <p className="text-xs text-gray-500 mt-1">
-              This helps our AI accurately read the numbers and text from your golf simulator screen
-            </p>
+            <div className="text-xs text-gray-500 mt-2 space-y-1">
+              <p>• Helps AI read simulator screens in your language</p>
+              {isRetailer && <p>• Enables voice transcription for fitting notes</p>}
+              <p>• Auto-translates voice notes if needed</p>
+            </div>
           </div>
         </div>
 
@@ -306,6 +309,27 @@ const ShotUpload: React.FC<ShotUploadProps> = ({ onShotAnalyzed }) => {
                 rows={3}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-golf-green focus:border-transparent"
               />
+              
+              {/* Voice Transcription for Fitting Notes */}
+              <div className="mt-4">
+                <VoiceTranscription
+                  onTranscription={(text, originalLanguage, translatedText) => {
+                    // Append transcribed text to existing notes
+                    const newText = retailerNotes ? `${retailerNotes}\n\n${text}` : text
+                    setRetailerNotes(newText)
+                    
+                    // Show helpful message about what was transcribed
+                    if (translatedText) {
+                      toast.success(`Added voice note (translated from ${originalLanguage})`)
+                    } else {
+                      toast.success('Added voice note to fitting notes')
+                    }
+                  }}
+                  targetLanguage={selectedLanguage as 'english' | 'japanese' | 'korean' | 'spanish'}
+                  placeholder="Click to record fitting notes in your language..."
+                  className="mt-2"
+                />
+              </div>
             </div>
             <div className="mt-4">
               <label className="flex items-center">

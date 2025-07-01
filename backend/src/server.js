@@ -15,6 +15,7 @@ const authRoutes = require('./routes/auth');
 const shotRoutes = require('./routes/shots');
 const shareRoutes = require('./routes/share');
 const retailerRoutes = require('./routes/retailer');
+const voiceRoutes = require('./routes/voice');
 
 // Import passport configuration
 require('./config/passport');
@@ -92,6 +93,7 @@ app.get('/favicon.ico', (req, res) => {
 app.use('/auth', authRoutes);
 app.use('/api/shots', shotRoutes);
 app.use('/api/retailer', retailerRoutes);
+app.use('/api/voice', voiceRoutes);
 app.use('/share', shareRoutes);
 
 // Error handling middleware
