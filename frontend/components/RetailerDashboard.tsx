@@ -10,6 +10,7 @@ import {
   EyeIcon,
   ShareIcon
 } from '@heroicons/react/24/outline'
+import RetailerAnalytics from './RetailerAnalytics'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://golf-shot-transcription.onrender.com'
 
@@ -176,6 +177,16 @@ const RetailerDashboard: React.FC = () => {
               Overview
             </button>
             <button
+              onClick={() => setActiveTab('analytics')}
+              className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                activeTab === 'analytics'
+                  ? 'border-golf-green text-golf-green'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              Analytics
+            </button>
+            <button
               onClick={() => setActiveTab('sessions')}
               className={`py-4 px-1 border-b-2 font-medium text-sm ${
                 activeTab === 'sessions'
@@ -209,7 +220,9 @@ const RetailerDashboard: React.FC = () => {
         </div>
 
         <div className="p-6">
-          {activeTab === 'overview' && (
+          {activeTab === 'analytics' && <RetailerAnalytics />}
+
+        {activeTab === 'overview' && (
             <div className="space-y-6">
               <h3 className="text-xl font-bold text-gray-800">Business Overview</h3>
               

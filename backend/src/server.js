@@ -14,6 +14,7 @@ const { runMigrations } = require('./config/migrations');
 const authRoutes = require('./routes/auth');
 const shotRoutes = require('./routes/shots');
 const shareRoutes = require('./routes/share');
+const retailerRoutes = require('./routes/retailer');
 
 // Import passport configuration
 require('./config/passport');
@@ -90,6 +91,7 @@ app.get('/favicon.ico', (req, res) => {
 // Routes
 app.use('/auth', authRoutes);
 app.use('/api/shots', shotRoutes);
+app.use('/api/retailer', retailerRoutes);
 app.use('/share', shareRoutes);
 
 // Error handling middleware
