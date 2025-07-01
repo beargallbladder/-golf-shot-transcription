@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import toast from 'react-hot-toast'
 import { TrophyIcon, FireIcon, BoltIcon, CheckCircleIcon, XCircleIcon } from '@heroicons/react/24/outline'
+import { useAuth } from '../contexts/AuthContext'
+import apiClient from '../config/axios'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://golf-shot-transcription.onrender.com'
 
@@ -28,36 +30,36 @@ interface BagStats {
 }
 
 const MyBag: React.FC = () => {
+  const { user, token } = useAuth()
   const [bag, setBag] = useState<ClubBest[]>([])
   const [stats, setStats] = useState<BagStats | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    fetchMyBag()
-  }, [])
+    if (user && token) {
+      fetchMyBag()
+    }
+  }, [user, token])
 
   const fetchMyBag = async () => {
     try {
       setLoading(true)
       console.log('🎒 Fetching My Bag data...')
+      console.log('👤 User:', user?.email)
+      console.log('🔑 Token exists:', !!token)
       
-      const token = localStorage.getItem('token')
       if (!token) {
         throw new Error('No authentication token found')
       }
 
-      const response = await axios.get(`${API_URL}/api/shots/my-bag`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      })
+      const response = await apiClient.get('/api/shots/my-bag')
       
       console.log('✅ My Bag response:', response.data)
-      setBag(response.data.bag)
-      setStats(response.data.stats)
+      setBag(response.data.bag || [])
+      setStats(response.data.stats || null)
     } catch (error: any) {
       console.error('❌ Fetch my bag error:', error)
-      const errorMessage = error.response?.data?.message || error.message
+      const errorMessage = error.response?.data?.message || error.message || 'Unknown error'
       toast.error(`Failed to load your bag: ${errorMessage}`)
     } finally {
       setLoading(false)
@@ -88,10 +90,14 @@ const MyBag: React.FC = () => {
     return 'text-orange-600'
   }
 
-  if (loading) {
+  // Show loading if we're still loading or if user/token aren't available yet
+  if (loading || !user || !token) {
     return (
       <div className="flex justify-center items-center h-64">
         <div className="w-8 h-8 border-4 border-golf-green border-t-transparent rounded-full animate-spin"></div>
+        <div className="ml-3 text-gray-600">
+          {!user || !token ? 'Authenticating...' : 'Loading your bag...'}
+        </div>
       </div>
     )
   }
