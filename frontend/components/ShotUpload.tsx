@@ -4,7 +4,7 @@ import axios from 'axios'
 import toast from 'react-hot-toast'
 import { CameraIcon, PhotoIcon, ArrowUpTrayIcon } from '@heroicons/react/24/outline'
 import LoadingSpinner from './LoadingSpinner'
-import SimpleVoiceRecorder from './SimpleVoiceRecorder'
+import RealVoiceRecorder from './RealVoiceRecorder'
 import CleanButton from './CleanButton'
 import { useAuth } from '../contexts/AuthContext'
 
@@ -306,7 +306,7 @@ const ShotUpload: React.FC<ShotUploadProps> = ({ onShotAnalyzed }) => {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Voice Notes
                 </label>
-                <SimpleVoiceRecorder
+                <RealVoiceRecorder
                   onTranscription={(text: string) => {
                     const newText = retailerNotes ? `${retailerNotes}\n\n${text}` : text
                     setRetailerNotes(newText)
