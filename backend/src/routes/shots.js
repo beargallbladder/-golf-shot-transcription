@@ -230,21 +230,32 @@ router.get('/leaderboard', async (req, res) => {
   try {
     const { period = 'all', metric = 'distance', limit = 10, club = 'all' } = req.query;
     
-    let timeFilter = '';
-    if (period === 'day') {
-      timeFilter = "AND created_at >= NOW() - INTERVAL '1 day'";
-    } else if (period === 'week') {
-      timeFilter = "AND created_at >= NOW() - INTERVAL '1 week'";
-    }
-
-    let clubFilter = '';
-    if (club !== 'all' && club) {
-      clubFilter = `AND s.club = '${club.replace(/'/g, "''")}'`; // SQL injection protection
-    }
-
-    // Validate metric
+    // Validate metric first for security
     const validMetrics = ['distance', 'speed', 'spin'];
     const orderMetric = validMetrics.includes(metric) ? metric : 'distance';
+    
+    // Validate period for security
+    const validPeriods = ['all', 'day', 'week'];
+    const validPeriod = validPeriods.includes(period) ? period : 'all';
+    
+    // Build parameterized query components
+    let whereConditions = [`s.${orderMetric} IS NOT NULL`];
+    let queryParams = [parseInt(limit)];
+    let paramIndex = 2;
+    
+    // Add time filter with parameters
+    if (validPeriod === 'day') {
+      whereConditions.push(`created_at >= NOW() - INTERVAL '1 day'`);
+    } else if (validPeriod === 'week') {
+      whereConditions.push(`created_at >= NOW() - INTERVAL '1 week'`);
+    }
+    
+    // Add club filter with parameterized query
+    if (club !== 'all' && club) {
+      whereConditions.push(`s.club = $${paramIndex}`);
+      queryParams.push(club);
+      paramIndex++;
+    }
 
     const result = await query(`
       SELECT 
@@ -260,10 +271,10 @@ router.get('/leaderboard', async (req, res) => {
         u.profile_picture as user_avatar
       FROM shots s
       JOIN users u ON s.user_id = u.id
-      WHERE s.${orderMetric} IS NOT NULL ${timeFilter} ${clubFilter}
+      WHERE ${whereConditions.join(' AND ')}
       ORDER BY s.${orderMetric} DESC
       LIMIT $1
-    `, [parseInt(limit)]);
+    `, queryParams);
 
     const leaderboard = result.rows.map(shot => ({
       id: shot.id,

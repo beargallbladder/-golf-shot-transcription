@@ -156,41 +156,19 @@ router.get('/dashboard', requireJWT, async (req, res) => {
       });
     }
 
-    // Get basic stats
-    const [
-      totalShotsResult,
-      fittingShotsResult,
-      shotsThisMonthResult,
-      totalCustomersResult,
-      newCustomersResult,
-      totalSessionsResult,
-      activeSessionsResult
-    ] = await Promise.all([
-      query('SELECT COUNT(*) as count FROM shots WHERE user_id = $1', [userId]),
-      query('SELECT COUNT(*) as count FROM shots WHERE user_id = $1 AND is_fitting_data = true', [userId]),
-      query(`
-        SELECT COUNT(*) as count FROM shots 
-        WHERE user_id = $1 AND created_at >= DATE_TRUNC('month', CURRENT_DATE)
-      `, [userId]),
-      query(`
-        SELECT COUNT(DISTINCT customer_email) as count FROM shots 
-        WHERE user_id = $1 AND customer_email IS NOT NULL
-      `, [userId]),
-      query(`
-        SELECT COUNT(DISTINCT customer_email) as count FROM shots 
-        WHERE user_id = $1 AND customer_email IS NOT NULL 
-        AND created_at >= CURRENT_DATE - INTERVAL '30 days'
-      `, [userId]),
-      query(`
-        SELECT COUNT(DISTINCT fitting_session_id) as count FROM shots 
-        WHERE user_id = $1 AND fitting_session_id IS NOT NULL
-      `, [userId]),
-      query(`
-        SELECT COUNT(DISTINCT fitting_session_id) as count FROM shots 
-        WHERE user_id = $1 AND fitting_session_id IS NOT NULL 
-        AND created_at >= CURRENT_DATE - INTERVAL '7 days'
-      `, [userId])
-    ]);
+    // Get all basic stats in a single optimized query
+    const statsResult = await query(`
+      SELECT 
+        COUNT(*) as total_shots,
+        COUNT(CASE WHEN is_fitting_data = true THEN 1 END) as fitting_shots,
+        COUNT(CASE WHEN created_at >= DATE_TRUNC('month', CURRENT_DATE) THEN 1 END) as shots_this_month,
+        COUNT(DISTINCT customer_email) FILTER (WHERE customer_email IS NOT NULL) as total_customers,
+        COUNT(DISTINCT customer_email) FILTER (WHERE customer_email IS NOT NULL AND created_at >= CURRENT_DATE - INTERVAL '30 days') as new_customers,
+        COUNT(DISTINCT fitting_session_id) FILTER (WHERE fitting_session_id IS NOT NULL) as total_sessions,
+        COUNT(DISTINCT fitting_session_id) FILTER (WHERE fitting_session_id IS NOT NULL AND created_at >= CURRENT_DATE - INTERVAL '7 days') as active_sessions
+      FROM shots 
+      WHERE user_id = $1
+    `, [userId]);
 
     // Get recent fitting sessions
     const sessionsResult = await query(`
@@ -208,14 +186,15 @@ router.get('/dashboard', requireJWT, async (req, res) => {
       LIMIT 10
     `, [userId]);
 
+    const statsRow = statsResult.rows[0];
     const stats = {
-      totalShots: parseInt(totalShotsResult.rows[0].count) || 0,
-      fittingShots: parseInt(fittingShotsResult.rows[0].count) || 0,
-      shotsThisMonth: parseInt(shotsThisMonthResult.rows[0].count) || 0,
-      totalCustomers: parseInt(totalCustomersResult.rows[0].count) || 0,
-      newCustomers: parseInt(newCustomersResult.rows[0].count) || 0,
-      totalSessions: parseInt(totalSessionsResult.rows[0].count) || 0,
-      activeSessions: parseInt(activeSessionsResult.rows[0].count) || 0
+      totalShots: parseInt(statsRow.total_shots) || 0,
+      fittingShots: parseInt(statsRow.fitting_shots) || 0,
+      shotsThisMonth: parseInt(statsRow.shots_this_month) || 0,
+      totalCustomers: parseInt(statsRow.total_customers) || 0,
+      newCustomers: parseInt(statsRow.new_customers) || 0,
+      totalSessions: parseInt(statsRow.total_sessions) || 0,
+      activeSessions: parseInt(statsRow.active_sessions) || 0
     };
 
     const sessions = sessionsResult.rows.map(row => ({

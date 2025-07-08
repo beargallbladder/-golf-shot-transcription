@@ -54,10 +54,10 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: {
-    secure: false, // Fix for invalid cert issues
+    secure: process.env.NODE_ENV === 'production', // Secure in production
     httpOnly: true,
     maxAge: 24 * 60 * 60 * 1000, // 24 hours
-    sameSite: 'lax'
+    sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax'
   }
 }));
 
@@ -89,11 +89,19 @@ app.get('/favicon.ico', (req, res) => {
   res.status(204).end();
 });
 
-// Routes
+// API v1 Routes - Standardized routing
+app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/shots', shotRoutes);
+app.use('/api/v1/retailer', retailerRoutes);
+app.use('/api/v1/voice', voiceRoutes);
+
+// Legacy routes for backward compatibility (temporary)
 app.use('/auth', authRoutes);
 app.use('/api/shots', shotRoutes);
 app.use('/api/retailer', retailerRoutes);
 app.use('/api/voice', voiceRoutes);
+
+// Public routes (no versioning needed)
 app.use('/share', shareRoutes);
 
 // Error handling middleware

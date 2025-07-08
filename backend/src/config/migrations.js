@@ -83,6 +83,37 @@ const migrations = [
       await query(`CREATE INDEX IF NOT EXISTS idx_retailer_customers_retailer ON retailer_customers(retailer_user_id)`);
       await query(`CREATE INDEX IF NOT EXISTS idx_fitting_sessions_retailer ON fitting_sessions(retailer_user_id)`);
     }
+  },
+  {
+    version: 'v4_add_performance_indexes',
+    description: 'Add critical performance indexes for query optimization',
+    up: async () => {
+      console.log('📊 Adding performance indexes...');
+      
+      // Critical index for daily shot limit queries
+      await query(`CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_shots_user_created_date ON shots(user_id, created_at)`);
+      
+      // Indexes for leaderboard queries with partial indexes for better performance
+      await query(`CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_shots_distance_desc_not_null ON shots(distance DESC) WHERE distance IS NOT NULL`);
+      await query(`CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_shots_speed_desc_not_null ON shots(speed DESC) WHERE speed IS NOT NULL`);
+      await query(`CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_shots_spin_desc_not_null ON shots(spin DESC) WHERE spin IS NOT NULL`);
+      
+      // Composite indexes for retailer analytics
+      await query(`CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_shots_retailer_analytics ON shots(user_id, is_fitting_data, created_at)`);
+      await query(`CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_shots_customer_analytics ON shots(user_id, customer_email, created_at) WHERE customer_email IS NOT NULL`);
+      await query(`CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_shots_fitting_session_analytics ON shots(user_id, fitting_session_id, created_at) WHERE fitting_session_id IS NOT NULL`);
+      
+      // Index for club-based queries (My Bag feature)
+      await query(`CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_shots_user_club_distance ON shots(user_id, club, distance DESC) WHERE club IS NOT NULL`);
+      
+      // Index for personal bests queries
+      await query(`CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_personal_bests_comprehensive ON personal_bests(user_id, club, distance DESC)`);
+      
+      // Index for user authentication queries
+      await query(`CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_users_email_lower ON users(LOWER(email))`);
+      
+      console.log('✅ Performance indexes added successfully');
+    }
   }
 ];
 

@@ -52,12 +52,26 @@ class AgentOrchestrator {
       const normalizedShot = await this.agents.normalizer.normalize(transcription, context);
       console.log('⚙️ Shot normalization complete');
       
-      // Phase 3: Parallel processing for performance
-      const [scoring, bagAnalysis, validation] = await Promise.all([
+      // Phase 3: Parallel processing with error isolation
+      const results = await Promise.allSettled([
         this.agents.scoring.score(normalizedShot, user),
         this.agents.bagComparison.analyzeBag([normalizedShot], user),
         this.agents.guardrail.validate(normalizedShot, { user, context })
       ]);
+      
+      // Extract results and handle individual failures
+      const scoring = results[0].status === 'fulfilled' ? results[0].value : this.getDefaultScoring();
+      const bagAnalysis = results[1].status === 'fulfilled' ? results[1].value : this.getDefaultBagAnalysis();
+      const validation = results[2].status === 'fulfilled' ? results[2].value : this.getDefaultValidation();
+      
+      // Log any agent failures
+      results.forEach((result, index) => {
+        const agentNames = ['scoring', 'bagComparison', 'guardrail'];
+        if (result.status === 'rejected') {
+          console.error(`❌ ${agentNames[index]} agent failed:`, result.reason);
+        }
+      });
+      
       console.log('📊 Parallel analysis complete');
       
       // Phase 4: Validation check
@@ -179,6 +193,41 @@ class AgentOrchestrator {
       console.error('Batch processing error:', error);
       throw error;
     }
+  }
+
+  /**
+   * Get default scoring when scoring agent fails
+   */
+  getDefaultScoring() {
+    return {
+      personalBest: false,
+      score: 0,
+      improvements: [],
+      confidence: 0.1
+    };
+  }
+
+  /**
+   * Get default bag analysis when bag comparison agent fails
+   */
+  getDefaultBagAnalysis() {
+    return {
+      comparison: [],
+      recommendations: [],
+      confidence: 0.1
+    };
+  }
+
+  /**
+   * Get default validation when guardrail agent fails
+   */
+  getDefaultValidation() {
+    return {
+      isValid: true, // Fail open for safety
+      flags: [],
+      confidence: 0.1,
+      fallback: true
+    };
   }
 
   /**

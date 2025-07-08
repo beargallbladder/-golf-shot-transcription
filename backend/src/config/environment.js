@@ -20,7 +20,7 @@ const config = {
   // Retailer Access Control
   retailerBetaEmails: process.env.RETAILER_BETA_EMAILS 
     ? process.env.RETAILER_BETA_EMAILS.split(',').map(email => email.trim().toLowerCase())
-    : ['samkim@samkim.com'],
+    : [],
   
   // Environment
   nodeEnv: process.env.NODE_ENV || 'development',
@@ -46,7 +46,13 @@ const validateEnvironment = () => {
   
   if (missing.length > 0) {
     console.error('❌ Missing required environment variables:', missing);
+    console.error('📋 Please set these environment variables and restart the server');
     process.exit(1);
+  }
+  
+  // Warn about retailer beta access
+  if (!process.env.RETAILER_BETA_EMAILS) {
+    console.warn('⚠️ RETAILER_BETA_EMAILS not set - retailer features will be disabled');
   }
   
   console.log('✅ Environment configuration validated');
