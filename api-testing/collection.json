@@ -1,0 +1,15 @@
+{
+  "info": {
+    "name": "Golf Shot API",
+    "version": "1.0.0"
+  },
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/health"
+      }
+    }
+  ]
+}

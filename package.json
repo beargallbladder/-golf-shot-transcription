@@ -13,9 +13,21 @@
     "dev:frontend": "cd frontend && npm run dev",
     "build": "npm run build:backend && npm run build:frontend",
     "build:backend": "cd backend && npm run build",
-    "build:frontend": "cd frontend && npm run build"
+    "build:frontend": "cd frontend && npm run build",
+    "swarm": "node scripts/execute-swarm.js",
+    "swarm:week1": "node backend/src/agents/ImplementationController.js week 1",
+    "swarm:week2": "node backend/src/agents/ImplementationController.js week 2",
+    "swarm:full": "node backend/src/agents/ImplementationController.js full",
+    "swarm:report": "node backend/src/agents/ImplementationController.js report",
+    "install:swarm": "npm install bull ioredis p-limit chalk ora prompts"
   },
   "devDependencies": {
-    "concurrently": "^8.2.2"
+    "bull": "^4.16.5",
+    "chalk": "^4.1.2",
+    "concurrently": "^8.2.2",
+    "ioredis": "^5.6.1",
+    "ora": "^5.4.1",
+    "p-limit": "^4.0.0",
+    "prompts": "^2.4.2"
   }
-} 
+}
